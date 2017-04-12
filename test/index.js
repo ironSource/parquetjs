@@ -1,14 +1,15 @@
+
+//these examples from from parquet-mr/parquet-encoding
+var fixtures = require('./fixture.json')
 var tape = require('tape')
-var u = require('../util')
 
-tape('byte to bits', function (t) {
-  t.equal(u.byteToBits(0), '00000000')
-  t.equal(u.byteToBits(255), '11111111')
-  t.equal(u.byteToBits(129), '10000001')
-  t.equal(u.byteToBits(66), '01000010')
-
-  for(var i = 0; i < 256; i++)
-    t.equal(parseInt(u.byteToBits(i), 2), i)
+tape('fixtures', function (t) {
+  fixtures.forEach(function (e, i) {
+    t.test('test:'+i, function (t) {
+      console.log(e)
+      t.end()
+    })
+  })
   t.end()
 })
 
