@@ -19,7 +19,11 @@ exports.byteToBits = function (n) {
   return s
 }
 
-exports.bitsToString = function (buffer) {
-
+exports.bufferToBits = function (buffer) {
+  var s = ''
+  for(var i = 0; i < buffer.length; i++)
+    s += exports.byteToBits(buffer[i]) + (i + 1 < buffer.length ? ' ' : '')
+  return s
 }
+
 
