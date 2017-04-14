@@ -1,29 +1,38 @@
 
-module.exports = function (integers, width) {
-  if(!Number.isInteger(width) && width >= 0 && width <= 32)
-    throw new Error('bit width must be between 0 and 32 (inclusive)')
-  var buffer = new Buffer(Math.ceil((integers.length * width)/8))
-  buffer.fill(0)
-  //if width is zero
-  if(width === 0) return buffer
-  console.log('i, j, b, B, v')
+var setBits = require('buffer-bits')
+//
+//module.exports = function (width) {
+//
+//  return {
+//    encode: function (array, out, offset) {
+//      encode(out, offset, array, width)
+//    },
+//    decode: function (in, offset) {
+//      throw new Error('bitpacking.decode: not yet implemented')
+//    },
+//    encodingLength: function (array) {
+////      array.length * width
+//    }
+//  }
+//
+//}
+//
+module.exports = function (_, array, width) {
+//  offset = offset | 0
+  var bits = array.length * width
+  var offset = 0
+//  if(!buffer) {
+    buffer = new Buffer(Math.ceil(bits / 32)*4)
+    buffer.fill(0)
+  //}
 
-  var mask = 255 > (7 - width)
-  for(var i = 0; i < integers.length; i++) {
-    for(var j = 0; j < width; j++) {
-      var byte = (i*width)>>3 //same as divide by 8
-      var bit = i%8
-      var ibit = (i*width + j) % 8
-//      console.log([i, j, bit, byte, integers[i]].join(', '))
-      console.log(ibit, integers[i] & (128 >> (7 - j)),  +!!(integers[i] & (128 >> (7 - j))))
+  for(var i = 0; i < array.length; i++)
+    setBits(buffer, array[i], width, offset*8 + i*width)
 
-      buffer[byte] = buffer[byte] | 
-         +!!(integers[i] & (128 >> (7 - j))) //<< ibit
-      //((integers[i] & (1 << ibit)) >> (ibit - 1)) << (7-bit)
-      //(((integers[i] & (1 << j)) >> j) << width%j)
-    }
-  }
-  return buffer
+
+  return buffer.slice(0, Math.ceil(bits/8))
 }
+
+
 
 
