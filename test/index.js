@@ -14,7 +14,7 @@ tape('fixtures', function (t) {
     t.test('test:'+i, function (t) {
 
       var bytes = Math.ceil(Math.ceil((e.ary.length*e.width) / 32)*4)
-      var buffer = packer(Z(bytes), e.ary, e.width)
+      var buffer = packer(Z(bytes), 0, e.ary, e.width)
       var bits = e.ary.length * e.width
 
       console.log('output', buffer.length, u.bufferToBits(buffer))
