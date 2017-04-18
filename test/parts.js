@@ -1,4 +1,4 @@
-
+var u = require('../util')
 function pullBits (value, width, bits) {
   return (((0xff >> (8 - width)) << width) & (value << bits)) >> width
 }
@@ -76,27 +76,40 @@ function steps (width) {
   return m
 }
 
-function bits (width) {
+function bits (width, input) {
   var w = 0, m = steps(width)
-  //console.log('bytes:', m, 'bits:', m*8)
   var a = []
   var byte = 0
+  var i = 0
+  var output = new Buffer(m)
   while(w < m*8) {
+    var value = 1
     //does adding this overlap a byte?
     //the bits left in this item to be added.
-    var _w = width// - Math.min(w % 8, width)
-    if((w+1) >> 3 !== (w + _w) >> 3) {
-     var overflow = ((w + _w) % 8)
-      a.push(_w - overflow)
-      if(overflow)
-        a.push(overflow)
+    var bits = 0, byte = output[w>>3]
+    while(bits < width) {
+      //bits needed to complete this byte
+      var bitsNeeded = 8 - (w % 8), add = 0
+
+      if(bitsNeeded < (width - bits))
+        add = bitsNeeded
+      else
+        add = width - bits
+
+//      console.log(value, width, bits, pullBits(value, width, add))
+//      console.log(value, width, add, pullBits(value, width, add))
+//      console.log("ADD", w>>3, (w % 8), bitsNeeded, pullBits(value, width, add))
+      output[w>>3] = output[w>>3] | 0
+      output[w>>3] = (output[w>>3] << add) | pullBits(value, width, add)
+      value = value << add //shift across so the next pullBits will get the top bits.
+
+      w+=add
+      a.push(add)
+      bits += add
     }
-    else {
-      a.push(_w)
-    }
-    w += _w //Math.min(w + width, byte + 8)
   }
-  console.log(a)
+  return output
+//  console.log(width, m, a)
 }
 
 
@@ -119,25 +132,12 @@ tape('number of bytes needed to pack width evenly', function (t) {
 })
 
 tape('bits', function (t) {
-  for(var i = 1; i <= 12; i++)
-    bits(i)
+  for(var i = 1; i <= 32; i++)
+    console.log(u.bufferToBits(bits(i)))
+
 
   t.end()
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
