@@ -1,6 +1,6 @@
 var u = require('../util')
 function pullBits (value, width, bits) {
-  return (((0xff >> (8 - width)) << width) & (value << bits)) >> width
+  return (((0xffffffff >> (32 - width)) << width) & (value << bits)) >> width
 }
 
 var tape = require('tape')
@@ -48,6 +48,13 @@ tape('get N least significant bits from the start of a number', function (t) {
   t.equal(pullBits(7, 3, 3), 7)
 
   t.end()
+})
+
+
+tape('pullBits when value is more than one byte', function (t) {
+  t.equal(pullBits(256, 9, 1), 1)
+  t.end()
+
 })
 
 function appendBits(buffer, bitIndex, value, width) {
@@ -101,6 +108,7 @@ function bits (width, input) {
 //      console.log("ADD", w>>3, (w % 8), bitsNeeded, pullBits(value, width, add))
       output[w>>3] = output[w>>3] | 0
       output[w>>3] = (output[w>>3] << add) | pullBits(value, width, add)
+//      console.log(add, value << add)
       value = value << add //shift across so the next pullBits will get the top bits.
 
       w+=add
