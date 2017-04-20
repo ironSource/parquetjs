@@ -2,8 +2,13 @@ var u = require('../util')
 
 var bp = require('../')
 var pullBits = bp.pullBits
+var pullBitsLE = bp.pullBitsLE
 var steps = bp.steps
 var tape = require('tape')
+
+function Z(n) {
+  var b = new Buffer(n); b.fill(0); return b
+}
 
 tape('get N least significant bits from the start of a number', function (t) {
 
@@ -125,7 +130,7 @@ tape('8x 1, to various widths', function (t) {
     items.push(1)
   for(var i = 0; i < 32; i++) {
     var out = new Buffer(((i+1)*8)>>3) //enough bytes to fit i*8 bits
-    var s = u.bufferToBits(bp(out, 0, i+1, items))
+    var s = u.bufferToBits(bp(out, 0, items, i+1))
     console.log(i+1, s)
     t.equal(s.replace(/[0 ]/g, '').length, 8)
   }
@@ -139,7 +144,7 @@ tape('8x 1..., to various widths', function (t) {
     for(var j = 0; j < 8; j++)
       items.push(1<<i)
     var out = new Buffer(((i+1)*8)>>3) //enough bytes to fit i*8 bits
-    var s = u.bufferToBits(bp(out, 0, i+1, items))
+    var s = u.bufferToBits(bp(out, 0, items, i+1))
     console.log(i+1, s)
     t.equal(s.replace(/[0 ]/g, '').length, 8)
   }
@@ -153,12 +158,33 @@ tape('i%3 into bitwidth 3', function (t) {
     inputs.push(i%3)
   console.log(inputs)
   var out = new Buffer(Math.ceil(10*3/8))
-  var bitstring = u.bufferToBits(bp(out, 0, 3, inputs))
+  var bitstring = u.bufferToBits(bp(out, 0, inputs, 3), 3)
   console.log(out)
-  var nice = bitstring.split(/([01]\s?[01]\s?[01]\s?)/).filter(Boolean).join(',')
-  console.log(nice)
 //  t.equal(nice, '000,001,01 0,000,001,0 10,000,001 ,010,000,00 1,010,000,0 01,010,000 ,001,010,00 0,001,010,0 00,001,010 ,000,000,0'
   console.log(bitstring)
   t.end()
 })
+
+
+var BE = new Buffer('05028140a05028140a', 'hex')
+var LE = new Buffer('881021428408112244','hex')
+
+tape('little-endian', function (t) {
+  var inputs = []
+  for(var i = 0; i < 24; i++)
+    inputs.push(i%3)
+
+  console.log('outBE', bp(Z(9), 0, inputs, 3))
+  console.log('outLE', u.bufferToBits(bp.LE(Z(9), 0, inputs, 3)))
+  console.log('   LE', u.bufferToBits(LE))
+  console.log(LE)
+  console.log(BE)
+  console.log('BE', u.bufferToBits(BE))
+  t.end()
+})
+
+
+
+
+
 

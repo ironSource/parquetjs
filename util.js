@@ -19,10 +19,17 @@ exports.byteToBits = function (n) {
   return s
 }
 
-exports.bufferToBits = function (buffer) {
+exports.bufferToBits = function (buffer, width) {
   var s = ''
   for(var i = 0; i < buffer.length; i++)
     s += exports.byteToBits(buffer[i]) + (i + 1 < buffer.length ? ' ' : '')
+
+  if(width != null) {
+    var rx = new RegExp('((?:[01]\\s?){'+width+'})')
+    console.log(rx)
+    s = s.split(rx).filter(Boolean).join(',')
+  }
+
   return s
 }
 
