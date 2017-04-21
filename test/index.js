@@ -1,5 +1,8 @@
 var tape = require('tape')
 var Hybrid = require('../')
+var bitpacking = require('bitpacking')
+var u = require('../util')
+var data = require('./fixture')
 
 //this uses a fixed bit width known in advance.
 //in the parquet tests the default width is 3.
@@ -24,7 +27,7 @@ tape('run-length only', function (t) {
     4,
     0xff])
 
-  var actual = hybrid.encode(input, Z(4))
+  var actual = hybrid.encode(input, Z(4), 0)
 
   t.deepEqual(actual, expected)
   t.end()
@@ -32,7 +35,6 @@ tape('run-length only', function (t) {
 // bitpacking only
 
 })
-
 
 //run length only
 tape('run-length only', function (t) {
@@ -46,42 +48,85 @@ tape('run-length only', function (t) {
     input.push(5)
 
                            //0xc8 1 is varint(200)
+  //0xc8 = 200, but the high bit means repeated
+  //so that goes into the next byte.
   var expected = new Buffer([0xc8, 1, 4, 0xc8, 1, 5, 0xff])
 
   var actual = hybrid.encode(input, Z(7))
 
   t.deepEqual(actual, expected)
+
+  //this test didn't cap off the stream, for some reason...
+  //just gonna test it
+  t.deepEqual(actual.slice(0, actual.length - 1), data.RLEOnly)
+
   t.end()
 
-// bitpacking only
-
 })
-
-return
 
 //some how it just magically decides whether to do bitpacking or RLE?
 //oh, or probably it uses whatever is smaller!
 //since it announces which one it does it can choose either.
 
-tape('bit width zero', function (t) {
-
-})
-
 tape('bitpacking only', function (t) {
   //bit width is 3
+  var hybrid = Hybrid(3)
   var input = []
   for(var i = 0; i < 100; i++)
     input.push(i % 3) // 0, 1, 2 ...
 
+  console.log(JSON.stringify(input))
   // 104/8 << 1 = 27
-  Buffer.concat([
+  var expected = Buffer.concat([
     new Buffer([27]),
-    bitpacking(null, input, 3),
+    bitpacking.LE(null, 0, input, 3),
     new Buffer([0xff])
   ])
+
+  var actual = Hybrid.bitpackRun(Z(40), 0, input, 3)
+
+//  console.log(data.BitPackingOnly.slice(1))
+//  console.log(actual.slice(1))
+//
+//  console.log(u.bufferToBits(data.BitPackingOnly.slice(1), 3))
+//  console.log(u.bufferToBits(actual.slice(1), 3))
+
+  t.deepEqual(actual, expected)
+  t.deepEqual(expected, data.BitPackingOnly, 'check manual expected result is correct')
+//  t.deepEqual(Hybrid.bitpackRun(Z(40), 0, input, 3), data.BitPackingOnly.slice(1))
+
+  t.end()
+})
+
+tape('bitpack to the limit', function (t) {
+  var hybrid = Hybrid(3)
+  var input = []
+
+  for(var i = 0; i < 504; i++)
+    input.push(i%3)
+  var expected = Buffer.concat([
+    //obviously, the top bit means something.
+    //0 on the top means it's not a repeating varint.
+    //1 at the bottom means it's bitpacking.
+    new Buffer([127]),
+    bp = bitpacking(null, input, 3),
+    new Buffer([0xff])
+  ])
+
+  var actual = hybrid.encode(input, Z(2 + Math.ceil((504*3)/8)))
+
+  t.equal(actual.length, expected.length)
+
+  for(var i = 0; i*20 < expected.length; i++)
+    t.deepEqual(actual.slice(i*20, i*20+20), expected.slice(i*20, i*20+20))
+
+  t.deepEqual(actual, expected)
+  t.end()
 })
 
 tape('bit packing overflow', function (t) {
+  var hybrid = Hybrid(3)
+
   var input = []
   for(var i = 0; i < 1000; i++)
     input.push(i%3)
@@ -90,7 +135,7 @@ tape('bit packing overflow', function (t) {
   // 504 is the max number of values in a bit packed run
   // that still has a header of 1 byte
   // header = ((504/8) << 1) | 1 = 127
-  Buffer.concat([
+  var expected = Buffer.concat([
     //obviously, the top bit means something.
     //0 on the top means it's not a repeating varint.
     //1 at the bottom means it's bitpacking.
@@ -102,8 +147,21 @@ tape('bit packing overflow', function (t) {
     bitpacking(null, input.slice(504), 3),
     new Buffer([0xff])
   ])
+
+  var actual = hybrid.encode(input, Z(3 + Math.ceil((1000*3)/8)))
+
+  t.equal(actual.length, expected.length)
+
+  for(var i = 0; i*20 < expected.length; i++)
+    t.deepEqual(actual.slice(i*20, i*20+20), expected.slice(i*20, i*20+20))
+
+//  t.deepEqual(actual, expected)
+  t.deepEqual(actual, data.BitPackingOverflow)
+
+  t.end()
 })
 
+return
 tape('transition from bit packing to rle', function (t) {
   var input = [
     // 5 obviously bit-packed values
@@ -125,6 +183,8 @@ tape('transition from bit packing to rle', function (t) {
       0xff //end.
     ])
   ])
+
+
 })
 
 tape('padding zeros on unfinished bit packed runs', function (t) {
@@ -148,6 +208,9 @@ tape('padding zeros on unfinished bit packed runs', function (t) {
 tape('test switching modes', function (t) {
   //width 9
   var input = []
+
+  var _expected = //dumped out of the java parquet tests.
+    new Buffer('32110005070e1c3870e0c001040914183060c0800103260600100500', 'hex')
 
   //rle first
 
@@ -192,6 +255,17 @@ tape('test switching modes', function (t) {
     ])
   ])
 })
+
+
+tape('bit width zero', function (t) {
+
+})
+
+
+
+
+
+
 
 
 
