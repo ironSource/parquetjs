@@ -15,17 +15,20 @@ function LE (output, offset, w, value, add, width) {
 
 
 function _encode (output, offset, input, width, each) {
+  console.log(offset, input, width)
   var w = 0
   var byte = 0
   var i = 0
   offset = offset | 0
-  if(!output) output = new Buffer(Math.ceil(input.length*width/8))
-
+  if(!output) {
+    output = new Buffer(Math.ceil(input.length*width/8))
+    output.fill(0)
+  }
   while(i < input.length || w%8) {
     var value = input[i++] | 0
     //does adding this overlap a byte?
     //the bits left in this item to be added.
-    var bits = 0, byte = output[w>>3]
+    var bits = 0, byte = output[offset + (w>>3)]
     while(bits < width) {
       //bits needed to complete this byte
       var bitsNeeded = 8 - (w % 8), add = 0
@@ -35,7 +38,7 @@ function _encode (output, offset, input, width, each) {
       else
         add = width - bits
 
-      value = each(output, offset + w>>3, w, value, add, width)
+      value = each(output, offset + (w>>3), w, value, add, width)
 
       w+=add
       bits += add
@@ -54,7 +57,7 @@ function decode (input, offset, width) {
     //read one value
     while(b < width) {
       if(width - b >= 8) {
-        value = input[w >> 3]
+        value = input[offset + (w>>3)]
       }
     }
   }
