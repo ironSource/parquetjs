@@ -1,24 +1,24 @@
+
 function pullBits (value, width, bits) {
   return ((0xffffffff >>> (32 - width)) & (value >>> (width - bits)))
 }
 
-function pullBitsLE (value, width, bits) {
-  return ((0xffffffff >>> (32 - width)) & (value >>> (width - bits)))
+function BE (output, offset, _, value, add, width) {
+  output[offset] = (output[offset] << add) | pullBits(value, width, add)
+  return value << add
 }
 
-//how many whole bytes will be needed to output a pack
-//does not give correct results if width > 8 on some values (16 bits)
-function steps (width) {
-  var m = width
-  //finding the lowest factor of width*8
-  while(!(m&1)) m = m >>> 1
-  return m
+function LE (output, offset, w, value, add, width) {
+  output[offset] = output[offset] | ((value) << w%8)
+  return value >> add //shift across so the next pullBits will get the top bits.
 }
 
-function encode (output, offset, input, width) {
+
+function _encode (output, offset, input, width, each) {
   var w = 0
   var byte = 0
   var i = 0
+  offset = offset | 0
   if(!output) output = new Buffer(Math.ceil(input.length*width/8))
 
   while(i < input.length) {
@@ -35,9 +35,7 @@ function encode (output, offset, input, width) {
       else
         add = width - bits
 
-      output[w>>3] = output[w>>3] | 0
-      output[w>>3] = (output[w>>3] << add) | pullBits(value, width, add)
-      value = value << add //shift across so the next pullBits will get the top bits.
+      value = each(output, offset + w>>3, w, value, add, width)
 
       w+=add
       bits += add
@@ -47,6 +45,7 @@ function encode (output, offset, input, width) {
 }
 
 function decode (input, offset, width) {
+  throw new Error('not implemented yet!')
   var w = 0
   var output = []
   while(w < input.length + offset) {
@@ -61,49 +60,16 @@ function decode (input, offset, width) {
   }
 }
 
-encode.pullBits = pullBits
-encode.pullBitsLE = pullBitsLE
-encode.steps = steps
-module.exports = encode
-
-module.exports.LE = function (output, offset, input, width) {
-  var w = 0
-  var byte = 0
-  var i = 0
-  if(!output) output = new Buffer(Math.ceil(input.length*width/8))
-
-  while(i < input.length) {
-    var value = input[i++]
-    //does adding this overlap a byte?
-    //the bits left in this item to be added.
-    var bits = 0, byte = output[w>>3]
-    while(bits < width) {
-      //bits needed to complete this byte
-      var bitsNeeded = 8 - (w % 8), add = 0
-
-      if(bitsNeeded < (width - bits))
-        add = bitsNeeded
-      else
-        add = width - bits
-
-      output[w>>3] = output[w>>3] | 0
-      console.log('shift:', add , w%8, 'V:'+value, (value << w%8).toString(2))
-
-//      output[w>>3] = output[w>>3] | (pullBitsLE(value, width, add) << w%8)
-//      output[w>>3] = output[w>>3] | (value << w%8)
-      output[w>>3] = output[w>>3] | ((value) << w%8)
-      console.log('out', output[w>>3].toString(2))
-      value = value >> add //shift across so the next pullBits will get the top bits.
-
-      w+=add
-      bits += add
-    }
-  }
-  return output
-
+module.exports = function (output, offset, input, width) {
+  return _encode(output, offset, input, width, BE)
 }
 
+module.exports.LE = function (output, offset, input, width) {
+  return _encode(output, offset, input, width, LE)
+}
 
+module.exports.pullBits = pullBits
+//module.exports.steps = steps
 
 
 
