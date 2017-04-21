@@ -22,6 +22,14 @@ tape('simple', function (t) {
   t.end()
 })
 
+tape('offset', function (t) {
+  var two = Z(2)
+  var one = two.slice(1)
+  packer(two, 1, [1,1,1,1,1,1,1,1], 1)
+  t.deepEqual(two, new Buffer([0, 0xff]))
+  t.end()
+})
+
 tape('fixtures', function (t) {
   fixtures.forEach(function (e, i) {
     t.test('test:'+i, function (t) {
