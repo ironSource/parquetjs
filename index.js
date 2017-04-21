@@ -21,8 +21,8 @@ function _encode (output, offset, input, width, each) {
   offset = offset | 0
   if(!output) output = new Buffer(Math.ceil(input.length*width/8))
 
-  while(i < input.length) {
-    var value = input[i++]
+  while(i < input.length || w%8) {
+    var value = input[i++] | 0
     //does adding this overlap a byte?
     //the bits left in this item to be added.
     var bits = 0, byte = output[w>>3]
