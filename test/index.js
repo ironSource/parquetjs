@@ -21,7 +21,7 @@ tape('simple', function (t) {
   t.deepEqual(packer(Z(1), 0, [128], 8), x80)
   t.end()
 })
-return
+
 tape('fixtures', function (t) {
   fixtures.forEach(function (e, i) {
     t.test('test:'+i, function (t) {
@@ -63,6 +63,7 @@ tape('fixtures, with default buffer', function (t) {
   })
   t.end()
 })
+
 
 
 
