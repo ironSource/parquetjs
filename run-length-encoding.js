@@ -23,7 +23,7 @@ exports.encode = function encode (opts, buffer, offset) {
     buffer[index] = value
   }
   else if(byteWidth === 2) {
-    buffer.writeUIntLE(value, index)
+    buffer.writeUInt16LE(value, index)
   }
   else if(byteWidth === 3) {
     buffer.writeInt16LE(value & 0xffff, index)
@@ -39,4 +39,6 @@ exports.encode = function encode (opts, buffer, offset) {
 
   return buffer
 }
+
+
 
