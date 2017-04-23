@@ -95,3 +95,12 @@ tape('short bitpack, rounded up to 8', function (t) {
   )
   t.end()
 })
+
+tape('run of zeros', function (t) {
+  t.deepEqual(runs(seq(100, function () { return 0 })),
+    [{value: 0, repeats: 100}]
+  )
+  t.end()
+})
+
+
