@@ -18,28 +18,28 @@ function assertNaNaN (n) {
   return n
 }
 
+function assertInteger(n) {
+  if(!Number.isInteger(n)) throw new Error('expected an integer, was:'+n)
+}
+
 module.exports = function (width) {
   function encode (inputs, buf, offset) {
     offset = offset | 0
     var bytes = 0
     var runs = toRuns(inputs)
-//    for(var i = 0; i < inputs.length; i++)
-//      _h.write(inputs[i])
-//    var runs = _h.end()
 
     for(var i = 0; i < runs.length; i++) {
       if(Array.isArray(runs[i])) {
-        bitpackRun(buf, assertNaNaN(offset), runs[i])
+        bitpackRun(buf, assertNaNaN(offset), runs[i], width)
         bytes += bitpackRun.bytes
-        assertNaNaN(offset += bitpackRun.bytes)
+        offset += bitpackRun.bytes
       }
       else {
         runLengthRun(buf, assertNaNaN(offset), runs[i].value, runs[i].repeats, width)
         bytes += runLengthRun.bytes
-        assertNaNaN(offset += runLengthRun.bytes)
+        offset += runLengthRun.bytes
       }
     }
-    console.log('cap', bytes)
     buf[offset] = 0xff
 
     encode.bytes = ++bytes
@@ -57,18 +57,20 @@ module.exports = function (width) {
 module.exports.bitpackRun = bitpackRun
 
 function bitpackRun (buf, offset, inputs, width) {
+  assertInteger(width)
   var packLength = Math.min(inputs.length , 504)
   var bytes = 0
   var header = (Math.ceil(packLength / 8) << 1) | 1
   buf[offset++] = header //this is always a singe byte
 
   bitpacking.LE(buf, offset, inputs, width)
-  bitpackRun.bytes = 1 + Math.ceil((inputs.length*width)/8)<<3 //_buf.length
+  bitpackRun.bytes = 1 + Math.ceil((inputs.length*width)/8) //_buf.length
   return buf
 }
 
 module.exports.runLengthRun = runLengthRun
 function runLengthRun (buf, offset, value, repeats, width) {
+  assertInteger(width)
   RLE.encode({value: value, repeats: repeats, width: width}, buf, offset)
   runLengthRun.bytes = RLE.encode.bytes
   return buf
