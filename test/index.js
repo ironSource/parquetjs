@@ -237,7 +237,7 @@ tape('padding zeros on unfinished bit packed runs', function (t) {
 tape('test switching modes', function (t) {
   //width 9
   var input = []
-
+  var hybrid = Hybrid(9)
   var _expected = //dumped out of the java parquet tests.
     new Buffer('32110005070e1c3870e0c001040914183060c0800103260600100500', 'hex')
 
@@ -246,7 +246,7 @@ tape('test switching modes', function (t) {
   for (var i = 0; i < 25; i++)
     input.push(17)
 
-  //why does it decide to bitpack now?
+  //16 bitpacked values (18 bytes)
   for (var i = 0; i < 7; i++)
     input.push(7)
 
@@ -260,7 +260,7 @@ tape('test switching modes', function (t) {
   for (var i = 0; i < 8; i++)
     input.push(5)
 
-  Buffer.concat([
+  var expected = Buffer.concat([
     // header = 25 << 1 = 50
     new Buffer([
       50, // 25<<1 as a varint
@@ -271,7 +271,7 @@ tape('test switching modes', function (t) {
       // 16/8 << 1 | 1 = 5
       5, //a varint.
     ]),
-    bitpacking(null, inputs.slice(25, 25+16), 9),
+    bitpacking.LE(null, 0, input.slice(25, 25+16), 9),
     // start a RLE block
     // header = 19 << 1 = 38
     new Buffer([
@@ -283,12 +283,36 @@ tape('test switching modes', function (t) {
       0xff
     ])
   ])
+
+  var actual = hybrid.encode(input, Z(29))
+
+  t.deepEqual(actual, expected)
+
+  t.end()
 })
 
 
 tape('bit width zero', function (t) {
+  var input = []
+  for(var i = 0; i < 100; i++)
+    input.push(0)
 
+  var hybrid = Hybrid(0)
+
+  t.deepEqual(
+    hybrid.encode(input, Z(3), 0),
+    Buffer.concat([
+      varint.encode(200, new Buffer(2)),
+      //value is zero bytes
+      new Buffer([0xff])
+    ])
+  )
+
+  t.end()
 })
+
+
+
 
 
 
