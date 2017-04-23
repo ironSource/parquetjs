@@ -1,22 +1,65 @@
+function append(ary, item) {
+  ary.push(item)
+  return ary
+}
 
-//check how many inputs can be rle encoded
-exports.rle = function (inputs, width) {
-  var value = inputs[0]
-  if(inputs[1] !== inputs[0]) return null
+function assertNaNaN (n) {
+  if(isNaN(n)) throw new Error('expected not not a number')
+  return n
+}
 
-  for(var i = 2; i < inputs.length && inputs[i] == value; i++)
-    if(inputs[i] != value) {
-      return {value: value, repeats: i-1}
-    }
+module.exports = function (width) {
+  var runs = []
+  var buffer = []
+  var previous = 0
+  var repeats = 1
+  function appendRLE () {
+    buffer = []
+    runs.push({value: previous, repeats: repeats})
+  }
+
+  function appendBitpack () {
+    var last = runs.length - 1
+    if(Array.isArray(runs[last]))
+      runs[last] = runs[last].concat(buffer)
+    else
+      runs.push(buffer)
+    repeats = 0
+    buffer = []
+  }
+
   return {
-    value: value,
-    repeats: i,
-    width: width,
-    length: Math.ceil(width/8)*i
+    write: function (value) {
+      if(value === previous) {
+        repeats ++
+        //do not add to buffer, because we will RLE
+        if(repeats >= 8) return
+      }
+      else {
+        if(repeats >= 8) {
+          appendRLE()
+        }
+        repeats = 1
+        previous = value
+      }
+      buffer.push(value)
+      if(buffer.length == 8)
+        appendBitpack()
+    },
+    end: function () {
+      if(repeats >= 8) {
+        appendRLE()
+      }
+      else if(buffer.length > 0) {
+        while(buffer.length < 8)
+          buffer.push(0)
+        appendBitpack()
+      }
+      return runs
+    }
   }
 }
 
-//hmm, bitpacking is used whenever rle can't be used.
-exports.bitpacking = function (inputs, width) {
 
-}
+
+
