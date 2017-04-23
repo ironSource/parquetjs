@@ -46,4 +46,15 @@ tape('bitpack/rle', function (t) {
   t.end()
 })
 
+tape('rle/rle', function (t) {
+  var actual = runs(
+    seq(100, function (i) { return 4 })
+    .concat(seq(100, function () { return 5 }))
+  )
+
+  t.deepEqual(actual, [{value: 4, repeats: 100}, {value:5, repeats: 100}])
+  t.end()
+
+
+})
 

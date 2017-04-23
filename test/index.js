@@ -63,7 +63,7 @@ tape('run-length only', function (t) {
   t.end()
 
 })
-
+return
 //some how it just magically decides whether to do bitpacking or RLE?
 //oh, or probably it uses whatever is smaller!
 //since it announces which one it does it can choose either.
@@ -260,6 +260,7 @@ tape('test switching modes', function (t) {
 tape('bit width zero', function (t) {
 
 })
+
 
 
 
