@@ -54,7 +54,40 @@ tape('rle/rle', function (t) {
 
   t.deepEqual(actual, [{value: 4, repeats: 100}, {value:5, repeats: 100}])
   t.end()
-
-
 })
+
+tape('long bitpack', function (t) {
+  var a = seq(63*8, function (i) { return 1 + i % 2 })
+  var b = seq(63*8, function (i) { return 3 + i % 2 })
+  var actual = runs(
+       a.concat(b)
+  )
+
+  console.log(actual)
+  t.deepEqual(actual, [a, b])
+
+  t.end()
+})
+
+
+tape('long bitpack', function (t) {
+  var a = seq(404, function (i) { return 1 + i % 2 })
+  var b = seq(704, function (i) { return 3 + i % 2 })
+  var c = seq(404, function (i) { return 7 + i % 2 })
+  var actual = runs(
+       a.concat(b).concat(c)
+  )
+
+  console.log(actual)
+  t.deepEqual(actual, [
+    a.concat(b.slice(0, 100)),
+    b.slice(100, 604),
+    b.slice(604).concat(c)
+  ])
+
+  t.end()
+})
+
+
+
 
