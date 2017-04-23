@@ -20,8 +20,13 @@ module.exports = function (width) {
 
   function appendBitpack () {
     var last = runs.length - 1
-    if(Array.isArray(runs[last]))
+    if(Array.isArray(runs[last])) {
       runs[last] = runs[last].concat(buffer)
+      if(runs[last].length > 504) {
+        runs.push(runs[last].slice(504))
+        runs[last] = runs[last].slice(0, 504)
+      }
+    }
     else
       runs.push(buffer)
     repeats = 0
