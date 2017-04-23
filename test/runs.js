@@ -88,6 +88,10 @@ tape('long bitpack', function (t) {
   t.end()
 })
 
-
-
-
+tape('short bitpack, rounded up to 8', function (t) {
+  t.deepEqual(
+    runs([0,1,2,3,4,5]),
+    [[0,1,2,3,4,5,0,0]]
+  )
+  t.end()
+})
