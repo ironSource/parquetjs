@@ -11,7 +11,7 @@ function assertNaNaN (n) {
 module.exports = function (width) {
   var runs = []
   var buffer = []
-  var previous = 0
+  var previous = null
   var repeats = 1
   function appendRLE () {
     buffer = []
@@ -64,7 +64,4 @@ module.exports = function (width) {
     }
   }
 }
-
-
-
 
