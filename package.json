@@ -1,0 +1,20 @@
+{
+  "name": "parquet.js",
+  "description": "",
+  "version": "0.0.0",
+  "homepage": "https://github.com/dominictarr/parquet.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dominictarr/parquet.js.git"
+  },
+  "dependencies": {
+    "hexpp": "^2.0.0",
+    "thrift": "^0.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "set -e; for t in test/*.js; do node $t; done"
+  },
+  "author": "'Dominic Tarr' <dominic.tarr@gmail.com> (http://dominictarr.com)",
+  "license": "MIT"
+}
