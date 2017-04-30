@@ -1,0 +1,5 @@
+{
+  "year": "int",
+  "play": "varchar"
+
+}
