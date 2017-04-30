@@ -26,7 +26,7 @@ module.exports = function (buffer) {
 
   var fmd = parse(footer, new types.FileMetaData())
 
-  console.log("FileMetaData", require('util').inspect(fmd, {depth: 10}))
+//  console.log("FileMetaData", require('util').inspect(fmd, {depth: 10}))
 
   for(var i in fmd.row_groups[0].columns) {
 //    if(fmd.row_groups[0].columns[i].encoding == 0)
@@ -36,11 +36,14 @@ module.exports = function (buffer) {
   }
 
   function column_chunk(cc) {
-    console.log('ColumnChunk', cc)
+//    console.log('ColumnChunk', cc)
     var start = cc.file_offset, length = cc.meta_data.total_compressed_size
     var page_header = parse(buffer.slice(start, start+length), new types.PageHeader())
-    console.log('PageHeader', page_header)
-    if(page_header.data_page_header && page_header.data_page_header.encoding === 0) {
+  //  console.log('PageHeader', page_header)
+    
+    //plain encoding.
+    if(false && page_header.data_page_header && page_header.data_page_header.encoding === 0) {
+      return
       console.log(hexpp(buffer.slice(start+parse.bytes, start+length)))
       var values = buffer.slice(start+parse.bytes, start+length)
 
@@ -57,6 +60,19 @@ module.exports = function (buffer) {
       }
       console.log(ary)
     }
+    else {
+//      console.log('-----------------------------------')
+      console.log(cc.meta_data.path_in_schema)
+      if(page_header.data_page_header)
+        console.log('DPH', page_header.data_page_header.encoding)
+      else {
+        console.log('DICT', page_header)
+        console.log(hexpp(buffer.slice(start+parse.bytes, start+length)))
+      }
+//      console.log(start, length)
+//      console.log(page_header.data_page_header && page_header.data_page_header.encoding)
+//      console.log(hexpp(buffer.slice(start+parse.bytes, start+length)))
+    }
   }
 
 
@@ -64,6 +80,9 @@ module.exports = function (buffer) {
 
 if(!module.parent)
   module.exports(require('fs').readFileSync(process.argv[2]))
+
+
+
 
 
 
