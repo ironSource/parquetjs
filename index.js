@@ -15,7 +15,6 @@ function LE (output, offset, w, value, add, width) {
 
 
 function _encode (output, offset, input, width, each) {
-  console.log(offset, input, width)
   var w = 0
   var byte = 0
   var i = 0
@@ -73,6 +72,7 @@ module.exports.LE = function (output, offset, input, width) {
 
 module.exports.pullBits = pullBits
 //module.exports.steps = steps
+
 
 
 
