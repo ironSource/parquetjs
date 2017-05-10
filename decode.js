@@ -27,7 +27,20 @@ module.exports = function (buffer) {
   var fmd = parse(footer, new types.FileMetaData())
 
 //  console.log("FileMetaData", require('util').inspect(fmd, {depth: 10}))
+  console.log(JSON.stringify(fmd, null, 2))
+  console.log(fmd.row_groups[0].columns[0])
+  var start = +fmd.row_groups[0].columns[0].file_offset
+  var length = +fmd.row_groups[0].columns[0].meta_data.total_compressed_size
+//  console.log(.toString('hex'))
+  var page = buffer.slice(start, start+length)
+  var ph = parse(page, new types.PageHeader())
+  console.log(ph, parse.bytes)
 
+  console.log(hexpp(page.slice(parse.bytes)))
+  console.log(parse(page.slice(0, parse.bytes), new types.PageHeader()))
+
+
+  return
   for(var i in fmd.row_groups[0].columns) {
 //    if(fmd.row_groups[0].columns[i].encoding == 0)
 //      fmd.row_groups[0]
@@ -80,6 +93,8 @@ module.exports = function (buffer) {
 
 if(!module.parent)
   module.exports(require('fs').readFileSync(process.argv[2]))
+
+
 
 
 
