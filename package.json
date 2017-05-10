@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "hexpp": "^2.0.0",
-    "thrift": "^0.10.0"
+    "thrift": "^0.10.0",
+    "varint": "^5.0.0"
   },
   "devDependencies": {},
   "scripts": {
