@@ -10,10 +10,14 @@
   "dependencies": {
     "bl": "^1.2.0",
     "hexpp": "^2.0.0",
+    "int53": "^0.2.4",
+    "minimist": "^1.2.0",
+    "pull-file": "^1.0.0",
+    "pull-split": "^0.2.0",
+    "pull-stream": "^3.6.0",
     "thrift": "^0.10.0",
     "varint": "^5.0.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "set -e; for t in test/*.js; do node $t; done"
   },
