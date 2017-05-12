@@ -13,33 +13,44 @@ function parse(buffer, type) {
   var transport = new thrift.TFramedTransport(buffer)
   var protocol = new thrift.TCompactProtocol(transport)
   type.read(protocol)
-  parse.bytes = protocol.trans.readPos
+  module.exports.bytes = parse.bytes = protocol.trans.readPos
   return type
 }
 
-module.exports = function (buffer) {
+//meta, schema, column
 
-  assert.equal(buffer.slice(buffer.length - 4, buffer.length).toString('ascii'), 'PAR1', 'correct magic number')
-
+function decodeFileMetaData (buffer) {
   var footerLength = buffer.readInt32LE(buffer.length - 8)
   var footer = buffer.slice(buffer.length - (footerLength + 8), buffer.length)
 
   var fmd = parse(footer, new types.FileMetaData())
+  return fmd
+}
+
+exports = module.exports = function (buffer, cb) {
+
+  assert.equal(buffer.slice(buffer.length - 4, buffer.length).toString('ascii'), 'PAR1', 'correct magic number')
+
+  var fmd = decodeFileMetaData(buffer)
+
 
 //  console.log("FileMetaData", require('util').inspect(fmd, {depth: 10}))
   console.log(JSON.stringify(fmd, null, 2))
   console.log(fmd.row_groups[0].columns[0])
-  var start = +fmd.row_groups[0].columns[0].file_offset
-  var length = +fmd.row_groups[0].columns[0].meta_data.total_compressed_size
+
+  var column = 16
+  var start = +fmd.row_groups[0].columns[16].file_offset
+  var length = +fmd.row_groups[0].columns[16].meta_data.total_compressed_size
+  console.log('PARSE', start, length)
 //  console.log(.toString('hex'))
   var page = buffer.slice(start, start+length)
   var ph = parse(page, new types.PageHeader())
+
   console.log(ph, parse.bytes)
-
-  console.log(hexpp(page.slice(parse.bytes)))
-  console.log(parse(page.slice(0, parse.bytes), new types.PageHeader()))
-
-
+//
+//  console.log(hexpp(page.slice(parse.bytes)))
+//  console.log(parse(page.slice(0, parse.bytes), new types.PageHeader()))
+//
   return
   for(var i in fmd.row_groups[0].columns) {
 //    if(fmd.row_groups[0].columns[i].encoding == 0)
@@ -91,13 +102,14 @@ module.exports = function (buffer) {
 
 }
 
+
+exports.FileMetaData = decodeFileMetaData
+exports.PageHeader = function (buf) {
+  return parse(buf, new types.PageHeader())
+}
+
 if(!module.parent)
   module.exports(require('fs').readFileSync(process.argv[2]))
-
-
-
-
-
 
 
 
