@@ -140,12 +140,11 @@ function encodeColumn(name, type, column) {
   return data_page
 }
 
-module.exports = function (headers, types, table) {
-  var PAR1 = new Buffer("PAR1")
-  var buf = new BufferList()
-  buf.append(PAR1)
+module.exports = function (headers, types) {
 
-  var count = table.length
+  var PAR1 = new Buffer("PAR1")
+  var offset = 4 //start at 4 because of "PAR1" magic number.
+  var count = 0 //table.length
 
   var fmd = new pt.FileMetaData()
   var _schema = new pt.SchemaElement()
@@ -169,101 +168,131 @@ module.exports = function (headers, types, table) {
     return schema
   })
 
-  var columns = []
-
-  table.forEach(function (row) {
-    row.forEach(function (value, i) {
-      columns[i] = columns[i] || []
-      columns[i].push(value)
-    })
-  })
-
-  var column_chunks = headers.map(function (name, i) {
-    var data_page = encodeColumn(name, types[i], columns[i])
-    var column = new pt.ColumnChunk()
-    var metadata = new pt.ColumnMetaData()
-
-    column.file_offset = new Int64(buf.length) 
-    column.meta_data = metadata
-    var start = buf.length
-    buf.append(data_page) //APPEND this column.
-
-    metadata.type = pt.Type[types[i]]
-    metadata.encodings = types[i] == 'BYTE_ARRAY' ? [2, 4, 3] : [3, 4, 2]
-    metadata.path_in_schema = [name]
-    console.error(metadata)
-    // must set the number as a string,
-    // because parquet does not check null properly
-    // and will think the value is not provided if
-    // it is falsey (includes zero)
-
-    metadata.codec = '0'
-    metadata.num_values = count
-    metadata.total_uncompressed_size = new Int64(data_page.length)
-    metadata.total_compressed_size = new Int64(data_page.length)
-    metadata.data_page_offset = new Int64(start) //just after PAR1
-
-    return column
-  })
-
-  //the name "row group" suggests that a row group
-  //should contain a column chunk for every row.
-  //basically, we stream the input out chunks, a row group at a time.
-  //these can be streamed to a file... we just save the file metadata
-  //to be written at the end.
-
-  var row_group = new pt.RowGroup()
-  //row group has
-  // - columns
-  // - total_byte_size
-  // - num_rows
-  // - sorting_columns
-
-  // with multiple columns, these will be one after another obviously.
-  // for the first data_page, file_offset will be 4.
-  // starts just after the "PAR1" magic number.
-
-  row_group.columns = column_chunks
-  row_group.num_rows = count
-  row_group.total_byte_size = new Int64(buf.length - 4)
 
   fmd.version = 1
   fmd.schema = [_schema].concat(schemas)
   fmd.num_rows = count
-  fmd.row_groups = [row_group]
+  fmd.row_groups = []
   fmd.created_by = 'parquet.js@'+require('./package.json').version 
 
-  var _output = encode(fmd)
-  var len = new Buffer(4)
-  len.writeUInt32LE(_output.length, len)
+  //append a whole row_group
+  return function (table) {
+    if(!table) { //append the end.
+      var _output = encode(fmd)
+      var len = new Buffer(4)
+      len.writeUInt32LE(_output.length, len)
+//
+//      buf.append(_output)
+//      buf.append(len)
+//      buf.append(PAR1)
+//
+      return Buffer.concat([_output, len, PAR1])
 
-  buf.append(_output)
-  buf.append(len)
-  buf.append(PAR1)
+//      return buf.slice(0, buf.length) //copy the buffer
+    } else {
+     fmd.num_rows = (count += table.length)
 
-  return buf.slice(0, buf.length) //copy the buffer
+     var columns = [] //rotate table
+      table.forEach(function (row) {
+        row.forEach(function (value, i) {
+          columns[i] = columns[i] || []
+          columns[i].push(value)
+        })
+      })
+
+      var pages = [], size = 0
+
+      var column_chunks = headers.map(function (name, i) {
+        var data_page = encodeColumn(name, types[i], columns[i])
+        var column = new pt.ColumnChunk()
+        var metadata = new pt.ColumnMetaData()
+
+        column.file_offset = new Int64(offset)
+        column.meta_data = metadata
+        var start = offset
+        pages.push(data_page)
+
+        metadata.type = pt.Type[types[i]]
+        metadata.encodings = types[i] == 'BYTE_ARRAY' ? [2, 4, 3] : [3, 4, 2]
+        metadata.path_in_schema = [name]
+        // must set the number as a string,
+        // because parquet does not check null properly
+        // and will think the value is not provided if
+        // it is falsey (includes zero)
+
+        metadata.codec = '0'
+        metadata.num_values = table.length
+        metadata.total_uncompressed_size = new Int64(data_page.length)
+        metadata.total_compressed_size = new Int64(data_page.length)
+        metadata.data_page_offset = new Int64(offset) //just after PAR1
+
+        size += data_page.length
+        offset += data_page.length
+
+        return column
+      })
+
+      //the name "row group" suggests that a row group
+      //should contain a column chunk for every row.
+      //basically, we stream the input out chunks, a row group at a time.
+      //these can be streamed to a file... we just save the file metadata
+      //to be written at the end.
+
+      var row_group = new pt.RowGroup()
+      //row group has
+      // - columns
+      // - total_byte_size
+      // - num_rows
+      // - sorting_columns
+
+      // with multiple columns, these will be one after another obviously.
+      // for the first data_page, file_offset will be 4.
+      // starts just after the "PAR1" magic number.
+
+      row_group.columns = column_chunks
+      row_group.num_rows = count
+      row_group.total_byte_size = new Int64(size)
+      fmd.row_groups.push(row_group)
+
+      //the first item
+      if(fmd.row_groups.length === 1) pages.unshift(PAR1)
+
+      return Buffer.concat(pages)
+    }
+  }
+
 }
 
-if(!module.parent)
-  process.stdout.write(module.exports(
-//    ['a', 'b', 'c', 'd'],
-//    ['BYTE_ARRAY', 'INT32', "INT64", "FLOAT"],
-//    [
-//      ['one',   10, Date.now(), Math.random()],
-//      ['two',   20, Date.now()+1000, Math.random()],
-//      ['three', 30, Date.now()+10000, Math.random()],
-//      ['four',  40, Date.now()+100000, Math.random()],
-//      ['five',  50, Date.now()+1000000, Math.random()]
-//    ]
+if(!module.parent) {
+  var append = module.exports(
     ['a', 'b', 'c'],
-    ['BYTE_ARRAY', 'INT32', "INT64"],
-    [
-      ['one',   10, Date.now()],
-      ['two',   20, Date.now()+1000],
-      ['three', 30, Date.now()+10000],
-      ['four',  40, Date.now()+100000],
-      ['five',  50, Date.now()+1000000]
-    ]
-  ))
+    ['BYTE_ARRAY', 'INT32', "INT64"]
+  )
+
+  process.stdout.write(append([
+    ['one',   10, Date.now()],
+    ['two',   20, Date.now()+1000],
+    ['three', 30, Date.now()+10000],
+    ['four',  40, Date.now()+100000],
+    ['five',  50, Date.now()+1000000]
+  ]))
+
+  process.stdout.write(append([
+    ['one',   10, Date.now()],
+    ['two',   20, Date.now()+1000],
+    ['three', 30, Date.now()+10000],
+    ['four',  40, Date.now()+100000],
+    ['five',  50, Date.now()+1000000]
+  ]))
+
+  process.stdout.write(append())
+
+}
+
+
+
+
+
+
 
 
