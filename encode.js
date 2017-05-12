@@ -44,6 +44,17 @@ function encodeRepeats(repeats, value) {
   return b
 }
 
+var convertedTypes = {
+  string: 'UTF8'
+}
+var encodingType = {
+  string: 'BYTE_ARRAY',
+  int: 'INT32',
+  double: 'DOUBLE',
+  timestamp: 'INT96',
+  boolean: 'BOOLEAN'
+}
+
 var encodeValues = {
   BYTE_ARRAY: function (column) {
     return Buffer.concat([
@@ -81,6 +92,17 @@ var encodeValues = {
     var b = new Buffer(8*column.length)
     for(var i = 0; i < column.length; i++)
       b.writeDoubleLE(column[i], i*8)
+    return b
+  },
+  BOOLEAN: function (column) {
+    //packed into single bits.
+    var b = new Buffer(Math.ceil(column.length/8))
+    for(var i = 0; i < column; i+=8) {
+      var byte = 0
+      for(var j = 0; j < 8; j++)
+        byte <<= 1 | +(column[j+i])
+      b[i/8] = byte
+    }
     return b
   }
 }
@@ -243,4 +265,5 @@ if(!module.parent)
       ['five',  50, Date.now()+1000000]
     ]
   ))
+
 
