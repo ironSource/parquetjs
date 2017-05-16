@@ -19,7 +19,10 @@ function open (file, cb) {
 function read (file, start, end, cb) {
   if('string' == typeof file)
     open(file, next)
-  else next(null, file)
+  else if(file && 'object' == typeof file)
+    next(null, file)
+  else
+    throw new Error('unknown type:'+JSON.stringify(file))
 
   function next (err, opts) {
     if(err) return cb(err)
@@ -54,6 +57,7 @@ if(!module.parent) {
   var opts = require('minimist')(process.argv.slice(2))
   var filename = opts._.shift()
 
+  if(!filename) throw new Error('filename must be provided')
   module.exports(filename, function (err, data, file) {
     if(err) throw err
     if(opts.meta) dump(data)
@@ -85,6 +89,5 @@ if(!module.parent) {
     }
   })
 }
-
 
 
