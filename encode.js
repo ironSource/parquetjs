@@ -13,14 +13,39 @@ PAR1
 PAR1
 */
 
+var convertedType = {
+  string: 'UTF8'
+}
+var encodingType = {
+  string: 'BYTE_ARRAY',
+  int: 'INT32',
+  double: 'DOUBLE',
+  timestamp: 'INT96',
+  boolean: 'BOOLEAN',
+  smallint: 'INT32'
+}
+
+var zeros = new Buffer(12)
+zeros.fill(0)
+
+var defaults = {
+  "BYTE_ARRAY": "",
+  INT32: 0,
+  INT64: 0,
+  INT96: zeros,
+  DOUBLE: 0,
+  float: 0,
+  boolean: false,
+}
+
 var BufferList = require('bl')
 
 var thrift = require('thrift')
 var pt = require('./gen-nodejs/parquet_types')
 
 function plain(value) {
-  if(value == null) throw new Error('falsy value')
-  var v = new Buffer(value)
+//  if(value == null) throw new Error('falsy value:'+JSON.stringify(value))
+  var v = new Buffer(value || defaults.BYTE_ARRAY) 
   var len = new Buffer(4)
   len.writeUInt32LE(v.length, 0)
   return Buffer.concat([len, v])
@@ -47,18 +72,6 @@ function encodeRepeats(repeats, value) {
   return b
 }
 
-var convertedType = {
-  string: 'UTF8'
-}
-var encodingType = {
-  string: 'BYTE_ARRAY',
-  int: 'INT32',
-  double: 'DOUBLE',
-  timestamp: 'INT96',
-  boolean: 'BOOLEAN',
-  smallint: 'INT32'
-}
-
 var encodeValues = {
   BYTE_ARRAY: function (column) {
     return Buffer.concat([
@@ -77,25 +90,25 @@ var encodeValues = {
   INT32: function (column) {
     var b = new Buffer(4*column.length)
     for(var i = 0; i < column.length; i++)
-      b.writeInt32LE(column[i], i*4)
+      b.writeInt32LE(column[i] || defaults.INT32, i*4)
     return b
   },
   INT64: function (column) {
     var b = new Buffer(8*column.length)
     for(var i = 0; i < column.length; i++)
-      Int53.writeUInt64LE(column[i], b, i*8)
+      Int53.writeUInt64LE(column[i] || defaults.INT64, b, i*8)
     return b
   },
   FLOAT: function (column) {
     var b = new Buffer(4*column.length)
     for(var i = 0; i < column.length; i++)
-      b.writeFloatLE(column[i], i*4)
+      b.writeFloatLE(column[i] || defaults.FLOAT, i*4)
     return b
   },
   DOUBLE: function (column) {
     var b = new Buffer(8*column.length)
     for(var i = 0; i < column.length; i++)
-      b.writeDoubleLE(column[i], i*8)
+      b.writeDoubleLE(column[i] || defaults.DOUBLE, i*8)
     return b
   },
   BOOLEAN: function (column) {
@@ -104,7 +117,7 @@ var encodeValues = {
     for(var i = 0; i < column; i+=8) {
       var byte = 0
       for(var j = 0; j < 8; j++)
-        byte <<= 1 | +(column[j+i])
+        byte <<= 1 | +(column[j+i]||defaults.BOOLEAN)
       b[i/8] = byte
     }
     return b
@@ -274,34 +287,5 @@ module.exports = function (headers, types) {
   }
 
 }
-
-if(!module.parent) {
-  var append = module.exports(
-    ['a', 'b', 'c'],
-    ['BYTE_ARRAY', 'INT32', "INT64"]
-  )
-
-  process.stdout.write(append([
-    ['one',   10, Date.now()],
-    ['two',   20, Date.now()+1000],
-    ['three', 30, Date.now()+10000],
-    ['four',  40, Date.now()+100000],
-    ['five',  50, Date.now()+1000000]
-  ]))
-
-  process.stdout.write(append([
-    ['one',   10, Date.now()],
-    ['two',   20, Date.now()+1000],
-    ['three', 30, Date.now()+10000],
-    ['four',  40, Date.now()+100000],
-    ['five',  50, Date.now()+1000000]
-  ]))
-
-  process.stdout.write(append())
-}
-
-
-
-
 
 
