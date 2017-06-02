@@ -2,6 +2,9 @@ var Int64 = require('node-int64')
 var Int53 = require('int53')
 var varint = require('varint')
 var explain = require('explain-error')
+var timestamp = require('./timestamp')
+var HRLE = require('./encodings/hybrid')(1)
+
 
 //encode an empty parquet file.
 //should be like this:
@@ -72,6 +75,14 @@ function encodeRepeats(repeats, value) {
   return b
 }
 
+function encodeNulls(nulls) {
+  var b = new Buffer(1024)
+  HRLE.encode(nulls, b, 4)
+  b.writeUInt32LE(HRLE.encode.bytes, 0)
+  return b.slice(0, HRLE.encode.bytes+4)
+}
+
+
 var encodeValues = {
   BYTE_ARRAY: function (column) {
     return Buffer.concat([
@@ -97,6 +108,12 @@ var encodeValues = {
     var b = new Buffer(8*column.length)
     for(var i = 0; i < column.length; i++)
       Int53.writeUInt64LE(column[i] || defaults.INT64, b, i*8)
+    return b
+  },
+  INT96: function (column) { //timestamps
+    var b = new Buffer(12*column.length)
+    for(var i = 0; i < column.length; i++)
+      timestamp.encode(column[i], b, i*12)
     return b
   },
   FLOAT: function (column) {
@@ -127,16 +144,20 @@ var encodeValues = {
 function encodeColumn(name, type, column) {
   if(!encodeValues[type])
     throw new Error('no value encoding:'+type)
-  var values = encodeValues[type](column)
+
+  var data = Buffer.concat([
+    encodeRepeats(column.length, 1),
+    encodeValues[type](column)
+  ])
 
   var ph = new pt.PageHeader()
 
   ph.type = '0' //plain encoding
-  ph.uncompressed_page_size = values.length
-  ph.compressed_page_size = values.length
+  ph.uncompressed_page_size = data.length
+  ph.compressed_page_size = data.length
   ph.crc = null
   ph.data_page_header = new pt.DataPageHeader()
-  ph.data_page_header.num_values = column.length
+  ph.data_page_header.num_values = (column.length).toString()
   ph.data_page_header.encoding = '0'   //plain encoding
   ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
   ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
@@ -152,11 +173,68 @@ function encodeColumn(name, type, column) {
     //but I guess the idea is to write a column_chunk at a time
     //(with a page_header at the top)
     encode(ph),
-    values
+    data
   ])
 
   return data_page
 }
+
+function encodeColumnV2(name, type, column) {
+  if(!encodeValues[type])
+    throw new Error('no value encoding:'+type)
+  //column = [column.shift()]
+  var values = []
+  var nulls = new Array(column.length)
+  column.forEach(function (e, j) {
+    nulls[j] = 1
+    values.push(e)
+//    if(nulls[j] = +(!(e === undefined || e ===  '')))
+//      values.push(e)
+  })
+
+//  console.error(encodeValues[type](values))
+  var dl = encodeNulls(nulls).slice(4)
+  var data = Buffer.concat([
+    dl,
+    encodeValues[type](values)
+  //: encodeValues[type](column).slice(0, 1)
+//    values.length ? encodeValues[type](values) : encodeValues[type](column).slice(0, 1)
+//    values.length ? encodeValues[type](values) : new Buffer(5)
+  ])
+
+  var ph = new pt.PageHeader()
+
+  ph.type = '0' //plain encoding
+  ph.uncompressed_page_size = data.length
+  ph.compressed_page_size = data.length
+  ph.crc = null
+  ph.data_page_header_v2 = new pt.DataPageHeaderV2()
+  ph.data_page_header_v2.num_values = (column.length).toString()
+  ph.data_page_header_v2.num_nulls = (values.length - column.length).toString()
+  ph.data_page_header_v2.num_rows = '1' //not sure what this is about, actually.
+  ph.data_page_header_v2.encoding = '0'   //plain encoding
+  ph.data_page_header_v2.definition_levels_byte_length = '0' //dl.length.toString()
+  ph.data_page_header_v2.repetition_levels_byte_length = dl.length
+//  ph.data_page_header_v2.definition_level_encoding = 3 //3 //RLE encoding
+//  ph.data_page_header_v2.repetition_level_encoding = 4 //Bitpacked encoding
+  //statistics is optional, but leaving it off probably slows
+  //some queries.
+  //ph.data_page_header.statistics
+
+  var data_page = Buffer.concat([
+    //unfortunately, the page header
+    //is expected before the values
+    //which means we can't stream the values
+    //then write the header...
+    //but I guess the idea is to write a column_chunk at a time
+    //(with a page_header at the top)
+    encode(ph),
+    data
+  ])
+
+  return data_page
+}
+
 
 module.exports = function (headers, types) {
 
@@ -177,7 +255,9 @@ module.exports = function (headers, types) {
     //so it's easier to set it like this.
 
     schema.type = ''+pt.Type[encodingType[types[i]]]
-    schema.repetition_type = '0'
+    //make every field optional
+    schema.repetition_type = 1
+    //schema.repetition_type = '0'
 
     if(convertedType[types[i]])
       schema.converted_type = ''+pt.Type[convertedType[types[i]]]
@@ -216,6 +296,7 @@ module.exports = function (headers, types) {
         if(!encodingType[types[i]])
           throw new Error('no encoding type for:'+types[i])
         var data_page
+
         try {
           data_page = encodeColumn(name, encodingType[types[i]], columns[i])
         } catch(err) {
