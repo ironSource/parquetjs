@@ -9,6 +9,13 @@ var julian = require('julian')
 var M = 1000000 //multiply milli by 1 million to get nano
 
 exports.encode = function (timestamp, buffer, offset) {
+  //parquet-tools cat --json outputs as a base64 string...
+  if('string' == typeof timestamp) {
+    var b = new Buffer(timestamp, 'base64')
+    if(!buffer) return b
+    b.copy(buffer, offset||0)
+    return b
+  }
   if(!buffer) {
     buffer = new Buffer(12)
     offset = 0
@@ -36,4 +43,5 @@ if(!module.parent) {
   console.log(exports.encode(n))
   console.log(exports.decode(exports.encode(n)))
 }
+
 
