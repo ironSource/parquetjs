@@ -1,5 +1,5 @@
 var RLE = require('./run-length-encoding')
-var bitpacking = require('bitpacking')
+var bitpacking = require('../bitpacking')
 var varint = require('varint')
 var assert = require('assert')
 
