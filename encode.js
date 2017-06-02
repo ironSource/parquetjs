@@ -182,15 +182,8 @@ module.exports = function (headers, types) {
     if(convertedType[types[i]])
       schema.converted_type = ''+pt.Type[convertedType[types[i]]]
 
-//    schema.converted_type =
-//      types[i] === 'BYTE_ARRAY' ? '0' : null
-//    : types[i] === 'INT32' ? null //17
-//    : types[i] === 'INT64' ? 9 //timestamp millis
-//    : null
-
     return schema
   })
-
 
   fmd.version = 1
   fmd.schema = [_schema].concat(schemas)
@@ -285,7 +278,5 @@ module.exports = function (headers, types) {
       return Buffer.concat(pages)
     }
   }
-
 }
-
 
