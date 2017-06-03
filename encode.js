@@ -113,7 +113,7 @@ var encodeValues = {
   INT96: function (column) { //timestamps
     var b = new Buffer(12*column.length)
     for(var i = 0; i < column.length; i++)
-      timestamp.encode(column[i], b, i*12)
+      timestamp.encode(column[i] || defaults.INT96, b, i*12)
     return b
   },
   FLOAT: function (column) {
@@ -186,10 +186,8 @@ function encodeColumnV2(name, type, column) {
   var values = []
   var nulls = new Array(column.length)
   column.forEach(function (e, j) {
-    nulls[j] = 1
-    values.push(e)
-//    if(nulls[j] = +(!(e === undefined || e ===  '')))
-//      values.push(e)
+    if(nulls[j] = +(!(e === undefined || e ===  '')))
+      values.push(e)
   })
 
 //  console.error(encodeValues[type](values))
@@ -360,4 +358,5 @@ module.exports = function (headers, types) {
     }
   }
 }
+
 
