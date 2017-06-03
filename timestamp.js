@@ -20,12 +20,14 @@ exports.encode = function (timestamp, buffer, offset) {
     buffer = new Buffer(12)
     offset = 0
   }
+
   if(isNaN(+timestamp)) throw new Error('expected timestamp, got NaN')
-  var buffer = new Buffer(12)
+
   Int53.writeUInt64LE(
     julian.toMillisecondsInJulianDay(timestamp)*M,
     buffer, offset
   )
+
   buffer.writeInt32LE(+julian.toJulianDay(timestamp), offset+8)
   return buffer
 }
@@ -42,6 +44,8 @@ if(!module.parent) {
   console.log(n)
   console.log(exports.encode(n))
   console.log(exports.decode(exports.encode(n)))
-}
+  console.log(exports.encode(0))
+  console.log(exports.decode(exports.encode(0)))
 
+}
 
