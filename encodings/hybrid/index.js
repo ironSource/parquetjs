@@ -26,6 +26,16 @@ module.exports = function (width) {
   function encode (inputs, buf, offset) {
     offset = offset | 0
     var bytes = 0
+    //if the with is zero, then only RLE makes sense
+    //parquet-mr actuall does use bitpacked with zero width
+    //when under 8 items, weird but just means there is not
+    //exact count of repeats. using RLE would still be valid.
+    if(width === 0) {
+      console.error(buf, offset, 0, inputs.length)
+      runLengthRun(buf, offset, 0, inputs.length, 0)
+      encode.bytes = runLengthRun.bytes
+      return buf
+    }
     var runs = toRuns(inputs)
 
     for(var i = 0; i < runs.length; i++) {
@@ -40,9 +50,9 @@ module.exports = function (width) {
         offset += runLengthRun.bytes
       }
     }
-    buf[offset] = 0xff
+//    buf[offset] = 0xff
 
-    encode.bytes = ++bytes
+    encode.bytes = bytes
     return buf
   }
   function decode (buf, offset) {
@@ -77,4 +87,9 @@ function runLengthRun (buf, offset, value, repeats, width) {
 }
 
 module.exports.runs = toRuns
+
+
+
+
+
 

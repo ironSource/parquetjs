@@ -33,4 +33,7 @@ exports.bufferToBits = function (buffer, width) {
   return s
 }
 
+exports.bits = function (n) {
+  return n ? Math.floor(Math.log(n)/Math.LN2)+1 : 0
+}
 
