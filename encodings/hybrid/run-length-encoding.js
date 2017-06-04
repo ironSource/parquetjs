@@ -40,5 +40,3 @@ exports.encode = function encode (opts, buffer, offset) {
   return buffer
 }
 
-
-

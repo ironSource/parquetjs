@@ -160,35 +160,35 @@ var encodeValues = {
 }
 
 function encodeColumnPlain(name, type, column) {
-    var ph = new pt.PageHeader()
-    ph.type = '0' //plain encoding
-    var data = Buffer.concat([
-      encodeRepeats(column.length, 1),
-      encodeValues[type](column)
-    ])
+  var ph = new pt.PageHeader()
+  ph.type = '0' //plain encoding
+  var data = Buffer.concat([
+    encodeRepeats(column.length, 1),
+    encodeValues[type](column)
+  ])
 
-    ph.uncompressed_page_size = data.length
-    ph.compressed_page_size = data.length
-    ph.crc = null
-    ph.data_page_header = new pt.DataPageHeader()
-    ph.data_page_header.num_values = (column.length).toString()
-    ph.data_page_header.encoding = '0'   //plain encoding
-    ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
-    ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
-    //statistics is optional, but leaving it off probably slows
-    //some queries.
-    //ph.data_page_header.statistics
+  ph.uncompressed_page_size = data.length
+  ph.compressed_page_size = data.length
+  ph.crc = null
+  ph.data_page_header = new pt.DataPageHeader()
+  ph.data_page_header.num_values = (column.length).toString()
+  ph.data_page_header.encoding = '0'   //plain encoding
+  ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
+  ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
+  //statistics is optional, but leaving it off probably slows
+  //some queries.
+  //ph.data_page_header.statistics
 
-    return Buffer.concat([
-      //unfortunately, the page header
-      //is expected before the values
-      //which means we can't stream the values
-      //then write the header...
-      //but I guess the idea is to write a column_chunk at a time
-      //(with a page_header at the top)
-      encode(ph),
-      data
-    ])
+  return Buffer.concat([
+    //unfortunately, the page header
+    //is expected before the values
+    //which means we can't stream the values
+    //then write the header...
+    //but I guess the idea is to write a column_chunk at a time
+    //(with a page_header at the top)
+    encode(ph),
+    data
+  ])
 }
 
 function encodeColumn(name, type, column) {
@@ -208,7 +208,6 @@ function encodeColumn(name, type, column) {
       return encodeColumnPlain(name, type, column)
 
     var dict = dictionary.encodeDictionary(obj)
-    console.error(name, obj)
     ph.uncompressed_page_size = dict.length
     ph.compressed_page_size = dict.length
     ph.crc = null
@@ -242,9 +241,7 @@ function encodeColumn(name, type, column) {
       encode(ph2),
       data
     ])
-
   }
-
 
   return data_page
 }
@@ -260,16 +257,11 @@ function encodeColumnV2(name, type, column) {
       values.push(e)
   })
 
-//  console.error(encodeValues[type](values))
   var dl = encodeNulls(nulls)
   var data = Buffer.concat([
     dl,
     encodeValues[type](values)
-  //: encodeValues[type](column).slice(0, 1)
-//    values.length ? encodeValues[type](values) : encodeValues[type](column).slice(0, 1)
-//    values.length ? encodeValues[type](values) : new Buffer(5)
   ])
-  console.error(name)
 
   var ph = new pt.PageHeader()
 
@@ -426,6 +418,5 @@ module.exports = function (headers, types) {
     }
   }
 }
-
 
 

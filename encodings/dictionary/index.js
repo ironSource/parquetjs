@@ -42,7 +42,8 @@ exports.encodeValues = function (rec) {
   //encode all values as non null.
   var width = bitWidth(rec.index)
   var h = HRLE(width)
-  var b = new Buffer(1024)
+  //XXX should figure out the right size for the buffer!
+  var b = new Buffer(1024*1024)
   b.fill(0)
   h.encode(rec.values, b)
   return Buffer.concat([
@@ -51,5 +52,4 @@ exports.encodeValues = function (rec) {
     b.slice(0, h.encode.bytes)
   ])
 }
-
 
