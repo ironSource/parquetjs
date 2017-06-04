@@ -4,6 +4,21 @@ var varint = require('varint')
 var explain = require('explain-error')
 var timestamp = require('./timestamp')
 var HRLE = require('./encodings/hybrid')(1)
+var dictionary = require('./encodings/dictionary')
+/*
+hypothesis:
+
+dictionary page works like this:
+
+<Uint32LE:len><HRL><byte: bitwidth><RLE>
+
+the bitwidth can be ZERO. that means that a sequence
+of N zeros (quite common) would be represented as
+[00 <varint(N)>]
+since the bit width is zero it doesn't encode anything!
+
+Yes. this turned out right.
+*/
 
 
 //encode an empty parquet file.
@@ -35,7 +50,7 @@ var defaults = {
   "BYTE_ARRAY": "",
   INT32: 0,
   INT64: 0,
-  INT96: zeros,
+  INT96: 0, //zeros,
   DOUBLE: 0,
   float: 0,
   boolean: false,
@@ -47,8 +62,7 @@ var thrift = require('thrift')
 var pt = require('./gen-nodejs/parquet_types')
 
 function plain(value) {
-//  if(value == null) throw new Error('falsy value:'+JSON.stringify(value))
-  var v = new Buffer(value || defaults.BYTE_ARRAY) 
+  var v = new Buffer(value || defaults.BYTE_ARRAY)
   var len = new Buffer(4)
   len.writeUInt32LE(v.length, 0)
   return Buffer.concat([len, v])
@@ -78,8 +92,12 @@ function encodeRepeats(repeats, value) {
 function encodeNulls(nulls) {
   var b = new Buffer(1024)
   HRLE.encode(nulls, b, 4)
-  b.writeUInt32LE(HRLE.encode.bytes, 0)
-  return b.slice(0, HRLE.encode.bytes+4)
+  //subtract 1, because I noticed that the data wasn't capped
+  //with the 0xff as is described in some code...
+  b.writeUInt32LE(HRLE.encode.bytes-1, 0)
+  b = b.slice(0, HRLE.encode.bytes+4-1)
+  console.error(b, nulls)
+  return b
 }
 
 
@@ -141,40 +159,92 @@ var encodeValues = {
   }
 }
 
+function encodeColumnPlain(name, type, column) {
+    var ph = new pt.PageHeader()
+    ph.type = '0' //plain encoding
+    var data = Buffer.concat([
+      encodeRepeats(column.length, 1),
+      encodeValues[type](column)
+    ])
+
+    ph.uncompressed_page_size = data.length
+    ph.compressed_page_size = data.length
+    ph.crc = null
+    ph.data_page_header = new pt.DataPageHeader()
+    ph.data_page_header.num_values = (column.length).toString()
+    ph.data_page_header.encoding = '0'   //plain encoding
+    ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
+    ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
+    //statistics is optional, but leaving it off probably slows
+    //some queries.
+    //ph.data_page_header.statistics
+
+    return Buffer.concat([
+      //unfortunately, the page header
+      //is expected before the values
+      //which means we can't stream the values
+      //then write the header...
+      //but I guess the idea is to write a column_chunk at a time
+      //(with a page_header at the top)
+      encode(ph),
+      data
+    ])
+}
+
 function encodeColumn(name, type, column) {
   if(!encodeValues[type])
     throw new Error('no value encoding:'+type)
 
-  var data = Buffer.concat([
-    encodeRepeats(column.length, 1),
-    encodeValues[type](column)
-  ])
+  if(type != 'BYTE_ARRAY') {
+    return encodeColumnPlain(name, type, column)
+  }
+  else {
+    var ph = new pt.PageHeader()
+    var dh = 
+    ph.type = 2 //dictionary
+    var obj = column.reduce(dictionary.reduce, dictionary.initial())
+    //if every value is unique, no gain with a dictionary
+    if(obj.index + 1 == obj.count)
+      return encodeColumnPlain(name, type, column)
 
-  var ph = new pt.PageHeader()
+    var dict = dictionary.encodeDictionary(obj)
+    console.error(name, obj)
+    ph.uncompressed_page_size = dict.length
+    ph.compressed_page_size = dict.length
+    ph.crc = null
+    ph.dictionary_page_header = new pt.DictionaryPageHeader()
+    ph.dictionary_page_header.num_values = obj.index+1
+    ph.dictionary_page_header.encoding = 2
+    ph.dictionary_page_header.is_sorted = null
 
-  ph.type = '0' //plain encoding
-  ph.uncompressed_page_size = data.length
-  ph.compressed_page_size = data.length
-  ph.crc = null
-  ph.data_page_header = new pt.DataPageHeader()
-  ph.data_page_header.num_values = (column.length).toString()
-  ph.data_page_header.encoding = '0'   //plain encoding
-  ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
-  ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
-  //statistics is optional, but leaving it off probably slows
-  //some queries.
-  //ph.data_page_header.statistics
+    var data = dictionary.encodeValues(obj)
 
-  var data_page = Buffer.concat([
-    //unfortunately, the page header
-    //is expected before the values
-    //which means we can't stream the values
-    //then write the header...
-    //but I guess the idea is to write a column_chunk at a time
-    //(with a page_header at the top)
-    encode(ph),
-    data
-  ])
+    var ph2 = new pt.PageHeader()
+    ph2.type = '0'
+    ph2.uncompressed_page_size = data.length
+    ph2.compressed_page_size = data.length
+    ph2.crc = null
+    ph2.data_page_header = new pt.DataPageHeader()
+    ph2.data_page_header.num_values = obj.count.toString()
+    ph2.data_page_header.encoding = 2 //hybrid
+    ph2.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
+    ph2.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
+
+    var data_page = Buffer.concat([
+      //unfortunately, the page header
+      //is expected before the values
+      //which means we can't stream the values
+      //then write the header...
+      //but I guess the idea is to write a column_chunk at a time
+      //(with a page_header at the top)
+      encode(ph),
+      dict,
+      encode(ph2),
+      data
+    ])
+
+  }
+
 
   return data_page
 }
@@ -191,7 +261,7 @@ function encodeColumnV2(name, type, column) {
   })
 
 //  console.error(encodeValues[type](values))
-  var dl = encodeNulls(nulls).slice(4)
+  var dl = encodeNulls(nulls)
   var data = Buffer.concat([
     dl,
     encodeValues[type](values)
@@ -199,6 +269,7 @@ function encodeColumnV2(name, type, column) {
 //    values.length ? encodeValues[type](values) : encodeValues[type](column).slice(0, 1)
 //    values.length ? encodeValues[type](values) : new Buffer(5)
   ])
+  console.error(name)
 
   var ph = new pt.PageHeader()
 
@@ -206,15 +277,12 @@ function encodeColumnV2(name, type, column) {
   ph.uncompressed_page_size = data.length
   ph.compressed_page_size = data.length
   ph.crc = null
-  ph.data_page_header_v2 = new pt.DataPageHeaderV2()
-  ph.data_page_header_v2.num_values = (column.length).toString()
-  ph.data_page_header_v2.num_nulls = (values.length - column.length).toString()
-  ph.data_page_header_v2.num_rows = '1' //not sure what this is about, actually.
-  ph.data_page_header_v2.encoding = '0'   //plain encoding
-  ph.data_page_header_v2.definition_levels_byte_length = '0' //dl.length.toString()
-  ph.data_page_header_v2.repetition_levels_byte_length = dl.length
-//  ph.data_page_header_v2.definition_level_encoding = 3 //3 //RLE encoding
-//  ph.data_page_header_v2.repetition_level_encoding = 4 //Bitpacked encoding
+  ph.data_page_header = new pt.DataPageHeader()
+  ph.data_page_header.num_values = (column.length).toString()
+  ph.data_page_header.encoding = '0'   //plain encoding
+  ph.data_page_header.definition_level_encoding = 3 //3 //RLE encoding
+  ph.data_page_header.repetition_level_encoding = 4 //Bitpacked encoding
+
   //statistics is optional, but leaving it off probably slows
   //some queries.
   //ph.data_page_header.statistics
@@ -358,5 +426,6 @@ module.exports = function (headers, types) {
     }
   }
 }
+
 
 
