@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 var hexpp = require('hexpp')
 var fs = require('fs')
 var decode = require('./decode')
@@ -72,6 +74,8 @@ if(!module.parent) {
         column.file_offset,
         column.file_offset + column.meta_data.total_compressed_size
       )
+      //data_page_offset is the same as file_offset (it's for dealing with multiple files, I guess)
+      //console.log('data_page_offset', column.meta_data.data_page_offset)
       read(
         file,
         +column.file_offset,
@@ -80,14 +84,27 @@ if(!module.parent) {
           if(err) throw err
           console.log(data.schema[1+opts.column])
           console.log(column)
-          console.log(decode.PageHeader(buf))
-          var body = buf.slice(decode.bytes)
-          console.log(hexpp(body.slice(0, body.readUInt32LE(0))))
-          console.log("REST")
-          console.log(hexpp(body.slice(body.readUInt32LE(0))))
+          var ph =decode.PageHeader(buf)
+          console.log('PageHeader', ph)
+          var body = buf.slice(decode.bytes, decode.bytes+ph.compressed_page_size)
+//          console.log(hexpp(body.slice(4, 4+body.readUInt32LE(0))))
+//          console.log("REST")
+//          console.log(hexpp(4+body.slice(body.readUInt32LE(0))))
+          console.log('WHOLE')
+          console.log(hexpp(body))
+          if(ph.type === 2)
+            console.log(require('./encodings/plain').decode(body, 0))
+//          console.log(hexpp(4+body.slice(body.readUInt32LE(0))))
+//          console.log('BUF')
+//          console.log(hexpp(buf.slice(decode.bytes+ph.compressed_page_size))) //.slice(decode.bytes+ph.compressed_page_size)))
+          //if dictionary type
+          if(ph.type == 2) {
+            var data_page_start = decode.bytes+ph.compressed_page_size
+            console.log(decode.PageHeader(buf.slice(data_page_start)))
+            console.log(hexpp(buf.slice(data_page_start + decode.bytes)))
+          }
         })
     }
   })
 }
-
 
