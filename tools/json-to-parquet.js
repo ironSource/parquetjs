@@ -6,6 +6,7 @@ var Encode = require('../encode')
 var Group = require('pull-group')
 var MapLast = require('pull-map-last')
 var fs = require('fs')
+var opts = require('minimist')(process.argv.slice(2))
 
 var HRLE = require('../encodings/hybrid')(1)
 
@@ -26,9 +27,16 @@ function Parquet (schema, rows) {
         return e[key]
       })
     }),
-    Group(rows || 1000),
+    Group(rows || 10000),
     MapLast(encoder, encoder)
   )
+}
+
+function filter(start, keys) {
+  var o ={}
+  for(var k in keys)
+    o[k] = start[k]
+  return o
 }
 
 if(!module.parent) {
@@ -38,8 +46,9 @@ if(!module.parent) {
   pull(
     File(process.argv[2]),
     parseJsonLines(),
-    Parquet(schema),
+    Parquet(opts.filter ? filter(schema, opts.filter) : schema), //, {product:true, osversion: true})),
     toPull.sink(process.stdout)
   )
 }
+
 
