@@ -108,8 +108,13 @@ exports.PageHeader = function (buf) {
   return parse(buf, new types.PageHeader())
 }
 
+exports.DataPageHeader = function (buf) {
+ return parse(buf, new types.DataPageHeader())
+}
+
 if(!module.parent)
   module.exports(require('fs').readFileSync(process.argv[2]))
+
 
 
 
