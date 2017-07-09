@@ -5,6 +5,10 @@ var explain = require('explain-error')
 var timestamp = require('./timestamp')
 var HRLE = require('./encodings/hybrid')(1)
 var dictionary = require('./encodings/dictionary')
+
+function isObject (o) {
+  return o && !Array.isArray(o) && 'object' == typeof o
+}
 /*
 hypothesis:
 
@@ -19,7 +23,6 @@ since the bit width is zero it doesn't encode anything!
 
 Yes. this turned out right.
 */
-
 
 //encode an empty parquet file.
 //should be like this:
@@ -294,6 +297,13 @@ function encodeColumnV2(name, type, column) {
 
 
 module.exports = function (headers, types) {
+  if(!types && isObject(headers)) {
+    var o = headers; headers = []; types = []
+    for(var name in o) {
+      headers.push(name)
+      types.push(o[name])
+    }
+  }
 
   var PAR1 = new Buffer("PAR1")
   var offset = 4 //start at 4 because of "PAR1" magic number.
@@ -340,11 +350,21 @@ module.exports = function (headers, types) {
      fmd.num_rows = (count += table.length)
 
      var columns = [] //rotate table
+
+    function push (value, i) {
+        columns[i] = columns[i] || []
+        columns[i].push(value)
+      }
+
       table.forEach(function (row) {
-        row.forEach(function (value, i) {
-          columns[i] = columns[i] || []
-          columns[i].push(value)
-        })
+        if(isObject(row)) {
+          headers.forEach(function (name, i) {
+            push(row[name], i)
+          })
+        }
+        else if(Array.isArray(row)) { // must be same order as headers
+          row.forEach(push)
+        }
       })
 
       var pages = [], size = 0
@@ -417,6 +437,7 @@ module.exports = function (headers, types) {
     }
   }
 }
+
 
 
 
