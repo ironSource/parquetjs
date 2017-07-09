@@ -2,6 +2,36 @@
 
 encode/decode parquet files from node/javascript
 
+## example
+
+``` js
+var createEncoder = require('parquet.js/encode')
+
+//initialize encoder with {<name>: <type>,} for example.
+var encodeRows = createEncoder({
+  name: 'string',
+  quantity: 'int',
+  price: 'double',
+  date: 'timestamp',
+  in_stock: 'boolean'
+})
+//btw, order is significant!
+
+//then pass batches of rows to that, you want the batch to be pretty big
+//like, 10k or 20k rows. will write a whole `row_group` which you want to be
+//at least 20 mb
+
+encodeRows([
+  {name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true},
+  //...etc
+]) => buffer
+
+//finally, call encodeRows with no args to finish off the file.
+//the footer information which is essential to interpreting the file
+//so without this the parquet file is invalid.
+encodeRows() => footer
+```
+
 ## BRAINDUMP
 
 in this repo you'll find
@@ -53,6 +83,8 @@ note, parquet supports nested data, but for simplicity we'll stick to flat data 
 ## License
 
 MIT
+
+
 
 
 
