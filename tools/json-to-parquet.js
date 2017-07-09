@@ -17,16 +17,9 @@ function parseJsonLines () {
 module.exports = Parquet
 
 function Parquet (schema, rows) {
-  var headers = Object.keys(schema)
-  var types = headers.map(function (key) { return schema[key] })
-  var encoder = Encode(headers, types)
+  var encoder = Encode(schema)
 
   return pull(
-    pull.map(function (e) {
-      return headers.map(function (key) {
-        return e[key]
-      })
-    }),
     Group(rows || 10000),
     MapLast(encoder, encoder)
   )
@@ -50,5 +43,7 @@ if(!module.parent) {
     toPull.sink(process.stdout)
   )
 }
+
+
 
 
