@@ -39,13 +39,4 @@ exports.decode = function (buffer, offset) {
   )
 }
 
-if(!module.parent) {
-  var n = Date.now()
-  console.log(n)
-  console.log(exports.encode(n))
-  console.log(exports.decode(exports.encode(n)))
-  console.log(exports.encode(0))
-  console.log(exports.decode(exports.encode(0)))
-
-}
 
