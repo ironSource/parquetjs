@@ -96,7 +96,6 @@ function encodeNulls(nulls) {
   //with the 0xff as is described in some code...
   b.writeUInt32LE(HRLE.encode.bytes-1, 0)
   b = b.slice(0, HRLE.encode.bytes+4-1)
-  console.error(b, nulls)
   return b
 }
 
@@ -418,5 +417,6 @@ module.exports = function (headers, types) {
     }
   }
 }
+
 
 
