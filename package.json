@@ -12,7 +12,7 @@
     "explain-error": "^1.0.3",
     "hexpp": "^2.0.0",
     "int53": "^0.2.4",
-    "julian": "git+http://github.com/dominictarr/julian.git",
+    "julian": "^0.2.0",
     "minimist": "^1.2.0",
     "pull-file": "^1.0.0",
     "pull-group": "^1.0.1",
