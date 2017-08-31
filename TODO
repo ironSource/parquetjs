@@ -1,0 +1,10 @@
+- repeated / optional cols
+- checksums
+- compression proper
+
+Nice2Have:
+- kv metadata
+- statistics
+- page header v2
+- index pages
+- (dictionary pages)
