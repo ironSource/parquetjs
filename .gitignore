@@ -1,0 +1,3 @@
+node_modules
+*.dat
+npm-debug.log
