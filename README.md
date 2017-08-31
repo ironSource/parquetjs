@@ -31,12 +31,13 @@ not necessary to keep the whole file in memory, just a row group and the metadat
 ``` js
 var parquet = require('parquetjs');
 
-var schema = new parquet.ParquetSchema();
-schema.addColumn({name: "name", type: "STRING"});
-schema.addColumn({name: "quantity", type: "INT64"});
-schema.addColumn({name: "price", type: "DOUBLE"});
-schema.addColumn({name: "date", type: "TIMESTAMP"});
-schema.addColumn({name: "in_stock", type: "BOOLEAN"});
+var schema = new parquet.ParquetSchema({
+  "name": { type: "STRING" },
+  "quantity": { type: "INT64" },
+  "price": { type: "DOUBLE" },
+  "date": { type: "TIMESTAMP" },
+  "in_stock": { type: "BOOLEAN" }
+});
 
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
 writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
