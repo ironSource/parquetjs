@@ -1,3 +1,4 @@
+"use strict";
 var parquet = require('..');
 
 // create a schema with a single, required int64 column 'num'
@@ -14,7 +15,7 @@ var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
 
 // write 10 rows to the parquet file with num=[0..10)
 for (var i = 0; i < 10; ++i) {
-  writer.writeRow({ "num": i })
+  writer.appendRow({ "num": i })
 }
 
 writer.end();
