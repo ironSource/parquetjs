@@ -5,6 +5,10 @@ var schema = new parquet.ParquetSchema();
 schema.addColumn("num");
 
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
+for (var i = 0; i < 10; ++i) {
+  writer.writeRow({ "num": i })
+}
+
 writer.end();
 
 // inspect file with
