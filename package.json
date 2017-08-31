@@ -14,6 +14,7 @@
     "int53": "^0.2.4",
     "julian": "^0.2.0",
     "minimist": "^1.2.0",
+    "pako": "^1.0.5",
     "pull-file": "^1.0.0",
     "pull-group": "^1.0.1",
     "pull-map-last": "^1.0.0",
