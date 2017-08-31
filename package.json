@@ -1,11 +1,11 @@
 {
   "name": "parquetjs",
-  "description": "",
-  "version": "0.0.0",
-  "homepage": "https://github.com/dominictarr/parquet.js",
+  "description": "Read and write parquet files from node.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ironsource/parquetjs",
   "repository": {
     "type": "git",
-    "url": "git://github.com/dominictarr/parquet.js.git"
+    "url": "git://github.com/ironsource/parquetjs.git"
   },
   "dependencies": {
     "bl": "^1.2.0",
@@ -30,6 +30,6 @@
   "scripts": {
     "test": "set -e; for t in test/*.js; do node $t; done"
   },
-  "author": "'Dominic Tarr' <dominic.tarr@gmail.com> (http://dominictarr.com)",
+  "author": "The ParquetJS Authors <parquet-js-authors@ironsrc.com>",
   "license": "MIT"
 }
