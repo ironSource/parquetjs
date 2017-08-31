@@ -1,8 +1,8 @@
 fs = require('fs');
-parquet = require('../lib/writer.js');
+parquet = require('..');
 
 var schema = new parquet.ParquetSchema();
-schema.addColumn("num");
+schema.addColumn({name: "num"});
 
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
 for (var i = 0; i < 10; ++i) {
