@@ -1,23 +1,16 @@
 "use strict";
 var parquet = require('..');
 
-// create a schema with a single, required int64 column 'num'
 var schema = new parquet.ParquetSchema();
-schema.addColumn({
-  name: "num",
-  repetition_type: "REQUIRED",
-  type: "INT64",
-  encoding: "PLAIN"
-});
+schema.addColumn({name: "name", type: "STRING"});
+schema.addColumn({name: "quantity", type: "INT64"});
+schema.addColumn({name: "price", type: "DOUBLE"});
+schema.addColumn({name: "date", type: "TIMESTAMP"});
+schema.addColumn({name: "in_stock", type: "BOOLEAN"});
 
-// create a parquet writer
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
-
-// write 10 rows to the parquet file with num=[0..10)
-for (var i = 0; i < 10; ++i) {
-  writer.appendRow({ "num": i })
-}
-
+writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
 writer.end();
 
 // inspect the output file with
