@@ -1,6 +1,0 @@
-# bitpacking
-
-
-## License
-
-MIT
