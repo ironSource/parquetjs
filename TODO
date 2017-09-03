@@ -1,8 +1,8 @@
 - repeated / optional cols
-- checksums
-- compression proper
+- improved RLE encoding
 
-Nice2Have:
+- checksums
+- compression
 - kv metadata
 - statistics
 - page header v2
