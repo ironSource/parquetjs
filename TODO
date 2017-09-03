@@ -1,10 +1,14 @@
-- repeated / optional cols
-- improved RLE encoding
-
-- checksums
-- compression
-- kv metadata
-- statistics
-- page header v2
-- index pages
-- (dictionary pages)
+writer:
+  - converted types
+  - improved RLE encoding
+  - nested schema
+  - encodings: dictionary*, delta*
+  - fixed length byte array
+  - make bit_width configurable
+  - checksums
+  - page header v2
+  - compression
+  - kv metadata
+  - statistics
+  - index pages
+  - (dictionary pages)
