@@ -1,12 +1,13 @@
 "use strict";
 var parquet = require('..');
 
-var schema = new parquet.ParquetSchema();
-schema.addColumn({name: "name", type: "BYTE_ARRAY"});
-schema.addColumn({name: "quantity", type: "INT64"});
-schema.addColumn({name: "price", type: "DOUBLE"});
-schema.addColumn({name: "date", type: "INT64"});
-schema.addColumn({name: "in_stock", type: "BOOLEAN"});
+var schema = new parquet.ParquetSchema({
+  name:     { type: "BYTE_ARRAY" },
+  quantity: { type: "INT64" },
+  price:    { type: "DOUBLE" },
+  date:     { type: "INT64" },
+  in_stock: { type: "BOOLEAN" }
+});
 
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
 for (let i = 0; i < 32; ++i) {
