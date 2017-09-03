@@ -8,25 +8,12 @@
     "url": "git://github.com/ironsource/parquetjs.git"
   },
   "dependencies": {
-    "bl": "^1.2.0",
-    "explain-error": "^1.0.3",
-    "hexpp": "^2.0.0",
     "int53": "^0.2.4",
-    "julian": "^0.2.0",
-    "minimist": "^1.2.0",
     "pako": "^1.0.5",
-    "pull-file": "^1.0.0",
-    "pull-group": "^1.0.1",
-    "pull-map-last": "^1.0.0",
-    "pull-split": "^0.2.0",
-    "pull-stream": "^3.6.0",
-    "stream-to-pull-stream": "^1.7.2",
     "thrift": "^0.10.0",
     "varint": "^5.0.0"
   },
-  "devDependencies": {
-    "tape": "^4.6.3"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "set -e; for t in test/*.js; do node $t; done"
   },
