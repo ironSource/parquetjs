@@ -10,8 +10,8 @@ var schema = new parquet.ParquetSchema({
 });
 
 var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
-for (let i = 0; i < 32; ++i) {
-  writer.appendRow({name: 'apples', quantity: i, price: 2.5, date: +new Date(), in_stock: true});
+for (let i = 0; i < 4; ++i) {
+  writer.appendRow({name: 'apples', quantity: 10 + i, price: 2.5, date: +new Date(), in_stock: true});
   writer.appendRow({name: 'oranges', quantity: i * 2, price: 2.5, date: +new Date(), in_stock: true});
   writer.appendRow({name: 'kiwi', price: 4.2, date: +new Date(), in_stock: false});
 }
