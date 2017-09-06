@@ -3,7 +3,6 @@ writer:
   - ParquetWriter opts (page_size, row_group_size, compression)
   - maxbits/encoding (RLE) parameter in example
   - improved RLE encoding
-  - input type conversion/validation in shred
   - converted type: decimal
   - converted type: time (interval)
   - nested schema
