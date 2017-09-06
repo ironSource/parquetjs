@@ -9,7 +9,7 @@ let schema = new parquet.ParquetSchema({
   date:       { type: 'TIMESTAMP_MICROS' },
   in_stock:   { type: 'BOOLEAN' },
   colour:     { type: 'UTF8', repeated: true },
-  meta_json:  { type: 'JSON', optional: true  },
+  meta_json:  { type: 'BSON', optional: true  },
 });
 
 let writer = parquet.ParquetWriter.openFile(schema, 'fruits.parquet');

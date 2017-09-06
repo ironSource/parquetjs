@@ -8,6 +8,7 @@
     "url": "git://github.com/ironsource/parquetjs.git"
   },
   "dependencies": {
+    "bson": "^1.0.4",
     "int53": "^0.2.4",
     "pako": "^1.0.5",
     "thrift": "^0.10.0",

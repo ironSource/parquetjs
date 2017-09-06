@@ -17,5 +17,4 @@ writer:
   - statistics
   - index pages
   - (dictionary pages)
-  - automatic bson encoding?
   - converted types: map/list, null (?)
