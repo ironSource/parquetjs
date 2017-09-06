@@ -2,7 +2,7 @@ const writer = require('./lib/writer');
 const schema = require('./lib/schema');
 
 module.exports = {
-  BufferedParquetWriter: writer.BufferedParquetWriter,
   ParquetWriter: writer.ParquetWriter,
+  ParquetEncoder: writer.ParquetEncoder,
   ParquetSchema: schema.ParquetSchema,
 };
