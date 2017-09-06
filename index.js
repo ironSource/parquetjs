@@ -4,9 +4,10 @@ const schema = require('./lib/schema');
 const shredder = require('./lib/shred');
 
 module.exports = {
+  ParquetEnvelopeReader: reader.ParquetEnvelopeReader,
   ParquetReader: reader.ParquetReader,
+  ParquetEnvelopeWriter: writer.ParquetEnvelopeWriter,
   ParquetWriter: writer.ParquetWriter,
-  ParquetEncoder: writer.ParquetEncoder,
   ParquetSchema: schema.ParquetSchema,
   ParquetShredder: shredder
 };

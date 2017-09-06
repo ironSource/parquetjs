@@ -41,7 +41,7 @@ writer.appendRow({
   meta_json: { expected_ship_date: new Date() }
 });
 
-writer.end();
+writer.close();
 
 // inspect the output file with
 // $ hadoop jar parquet-tools-1.9.0.jar meta fruits.parquet
