@@ -16,7 +16,7 @@ let writer = parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 writer.appendRow({
   name: 'apples',
   quantity: 10,
-  price: 2.5,
+  price: 2.6,
   date: +new Date(),
   in_stock: true,
   colour: [ 'green', 'red' ]
@@ -25,7 +25,7 @@ writer.appendRow({
 writer.appendRow({
   name: 'oranges',
   quantity: 20,
-  price: 2.5,
+  price: 2.7,
   date: +new Date(),
   in_stock: true,
   colour: [ 'orange' ]
