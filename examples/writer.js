@@ -3,12 +3,12 @@ const parquet = require('..');
 
 // write a new file 'fruits.parquet'
 let schema = new parquet.ParquetSchema({
-  name:     { type: 'BYTE_ARRAY' },
+  name:     { type: 'UTF8' },
   quantity: { type: 'INT64', optional: true },
   price:    { type: 'DOUBLE' },
   date:     { type: 'INT64' },
   in_stock: { type: 'BOOLEAN' },
-  colour:   { type: 'BYTE_ARRAY', repeated: true }
+  colour:   { type: 'UTF8', repeated: true }
 });
 
 let writer = parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
