@@ -12,13 +12,8 @@ let schema = new parquet.ParquetSchema({
   meta_json:  { type: 'BSON', optional: true  },
 });
 
-parquet.ParquetWriter.openFile(schema, 'fruits.parquet', {}, (err, writer) => {
-  if (err) {
-    console.log("ERR", err);
-    process.exit(1);
-  }
-
-  writer.appendRow({
+parquet.ParquetWriter.openFile(schema, 'fruits.parquet').then(async function(writer) {
+  await writer.appendRow({
     name: 'apples',
     quantity: 10,
     price: 2.6,
@@ -27,7 +22,7 @@ parquet.ParquetWriter.openFile(schema, 'fruits.parquet', {}, (err, writer) => {
     colour: [ 'green', 'red' ]
   });
 
-  writer.appendRow({
+  await writer.appendRow({
     name: 'oranges',
     quantity: 20,
     price: 2.7,
@@ -36,7 +31,7 @@ parquet.ParquetWriter.openFile(schema, 'fruits.parquet', {}, (err, writer) => {
     colour: [ 'orange' ]
   });
 
-  writer.appendRow({
+  await writer.appendRow({
     name: 'kiwi',
     price: 4.2,
     date: new Date(),
@@ -45,7 +40,7 @@ parquet.ParquetWriter.openFile(schema, 'fruits.parquet', {}, (err, writer) => {
     meta_json: { expected_ship_date: new Date() }
   });
 
-  writer.close();
+  await writer.close();
 });
 
 // inspect the output file with
