@@ -1,4 +1,7 @@
 writer:
+  - doc: supported encodings tables
+  - ParquetWriter opts (page_size, row_group_size, compression)
+  - maxbits/encoding (RLE) parameter in example
   - converted types
   - improved RLE encoding
   - nested schema

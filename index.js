@@ -1,5 +1,5 @@
-var writer = require("./lib/writer");
-var schema = require("./lib/schema");
+const writer = require("./lib/writer");
+const schema = require("./lib/schema");
 
 module.exports = {
   ParquetFileWriter: writer.ParquetFileWriter,

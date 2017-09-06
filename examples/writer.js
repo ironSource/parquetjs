@@ -1,5 +1,5 @@
 "use strict";
-var parquet = require('..');
+const parquet = require('..');
 
 // write a new file 'fruits.parquet'
 var schema = new parquet.ParquetSchema({
