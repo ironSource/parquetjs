@@ -2,17 +2,19 @@
 const parquet = require('..');
 
 // write a new file 'fruits.parquet'
-let schema = new parquet.ParquetSchema({
-  name:       { type: 'UTF8' },
-  quantity:   { type: 'INT64', optional: true },
-  price:      { type: 'DOUBLE' },
-  date:       { type: 'TIMESTAMP_MICROS' },
-  in_stock:   { type: 'BOOLEAN' },
-  colour:     { type: 'UTF8', repeated: true },
-  meta_json:  { type: 'BSON', optional: true  },
-});
+async function example() {
+  let schema = new parquet.ParquetSchema({
+    name:       { type: 'UTF8' },
+    quantity:   { type: 'INT64', optional: true },
+    price:      { type: 'DOUBLE' },
+    date:       { type: 'TIMESTAMP_MICROS' },
+    in_stock:   { type: 'BOOLEAN' },
+    colour:     { type: 'UTF8', repeated: true },
+    meta_json:  { type: 'BSON', optional: true  },
+  });
 
-parquet.ParquetWriter.openFile(schema, 'fruits.parquet').then(async function(writer) {
+  let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
+
   await writer.appendRow({
     name: 'apples',
     quantity: 10,
@@ -41,8 +43,7 @@ parquet.ParquetWriter.openFile(schema, 'fruits.parquet').then(async function(wri
   });
 
   await writer.close();
-});
+}
 
-// inspect the output file with
-// $ hadoop jar parquet-tools-1.9.0.jar meta fruits.parquet
-// $ hadoop jar parquet-tools-1.9.0.jar dump fruits.parquet
+example();
+
