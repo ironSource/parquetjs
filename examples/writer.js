@@ -6,7 +6,7 @@ let schema = new parquet.ParquetSchema({
   name:     { type: 'UTF8' },
   quantity: { type: 'INT64', optional: true },
   price:    { type: 'DOUBLE' },
-  date:     { type: 'INT64' },
+  date:     { type: 'TIMESTAMP_MILLIS' },
   in_stock: { type: 'BOOLEAN' },
   colour:   { type: 'UTF8', repeated: true }
 });
