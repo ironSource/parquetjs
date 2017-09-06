@@ -2,7 +2,7 @@
 const parquet = require('..');
 
 // write a new file 'fruits.parquet'
-var schema = new parquet.ParquetSchema({
+let schema = new parquet.ParquetSchema({
   name:     { type: 'BYTE_ARRAY' },
   quantity: { type: 'INT64', optional: true },
   price:    { type: 'DOUBLE' },
@@ -11,7 +11,7 @@ var schema = new parquet.ParquetSchema({
   colour:   { type: 'BYTE_ARRAY', repeated: true }
 });
 
-var writer = parquet.BufferedParquetWriter.openFile(schema, 'fruits.parquet');
+let writer = parquet.BufferedParquetWriter.openFile(schema, 'fruits.parquet');
 
 writer.appendRow({
   name: 'apples',
