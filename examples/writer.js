@@ -11,7 +11,7 @@ var schema = new parquet.ParquetSchema({
   colour:   { type: "BYTE_ARRAY", repeated: true }
 });
 
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = parquet.BufferedParquetWriter.openFile(schema, 'fruits.parquet');
 
 writer.appendRow({
   name: 'apples',
