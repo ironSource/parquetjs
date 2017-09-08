@@ -52,7 +52,7 @@ async function writeTestFile() {
       date: new Date(),
       in_stock: false,
       colour: [ 'yellow' ],
-      meta_json: { shape: "curved" }
+      meta_json: { shape: 'curved' }
     });
   }
 
@@ -62,6 +62,31 @@ async function writeTestFile() {
 async function readTestFile() {
   let reader = await parquet.ParquetReader.openFile('fruits.parquet');
   assert.equal(reader.getRowCount(), 40000);
+
+  let schema = reader.getSchema();
+  assert.equal(schema.columns.length, 7);
+  assert.equal(schema.schema['name'].type, 'UTF8');
+  assert.equal(schema.schema['name'].optional, false);
+  assert.equal(schema.schema['name'].repeated, false);
+  assert.equal(schema.schema['quantity'].type, 'INT64');
+  assert.equal(schema.schema['quantity'].optional, true);
+  assert.equal(schema.schema['quantity'].repeated, false);
+  assert.equal(schema.schema['price'].type, 'DOUBLE');
+  assert.equal(schema.schema['price'].optional, false);
+  assert.equal(schema.schema['price'].repeated, false);
+  assert.equal(schema.schema['date'].type, 'TIMESTAMP_MICROS');
+  assert.equal(schema.schema['date'].optional, false);
+  assert.equal(schema.schema['date'].repeated, false);
+  assert.equal(schema.schema['in_stock'].type, 'BOOLEAN');
+  assert.equal(schema.schema['in_stock'].optional, false);
+  assert.equal(schema.schema['in_stock'].repeated, false);
+  assert.equal(schema.schema['colour'].type, 'UTF8');
+  assert.equal(schema.schema['colour'].optional, false);
+  assert.equal(schema.schema['colour'].repeated, true);
+  assert.equal(schema.schema['meta_json'].type, 'BSON');
+  assert.equal(schema.schema['meta_json'].optional, true);
+  assert.equal(schema.schema['meta_json'].repeated, false);
+
   reader.close();
 }
 
