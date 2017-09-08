@@ -17,3 +17,9 @@ writer:
   - index pages
   - (dictionary pages)
   - converted types: map/list, null (?)
+
+reader:
+  - explicit col chunk metadata loading (if not in footer)
+  - load compressed pages
+  - load data pages v2
+  - verify checksums
