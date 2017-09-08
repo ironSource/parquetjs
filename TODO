@@ -17,8 +17,12 @@ writer:
   - index pages
   - (dictionary pages)
   - converted types: map/list, null (?)
+  - split column chunk into multiple pages
 
 reader:
+  - RLE
+  - remaining fromNative types
+  - remaining PLAIN types
   - explicit col chunk metadata loading (if not in footer)
   - load compressed pages
   - load data pages v2
