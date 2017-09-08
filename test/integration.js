@@ -87,6 +87,11 @@ async function readTestFile() {
   assert.equal(schema.schema['meta_json'].optional, true);
   assert.equal(schema.schema['meta_json'].repeated, false);
 
+  {
+    let cursor = reader.getCursor(['name']);
+    assert.equal(await cursor.next(), { 'name': 'apples' });
+  }
+
   reader.close();
 }
 
