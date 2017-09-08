@@ -20,7 +20,7 @@ writer:
   - split column chunk into multiple pages
 
 reader:
-  - RLE
+  - read RLE
   - remaining fromNative types
   - remaining PLAIN types
   - explicit col chunk metadata loading (if not in footer)
