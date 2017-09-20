@@ -116,11 +116,11 @@ async function readTestFile() {
 
 describe('Parquet', function() {
 
-  it('write a simple test file', function() {
+  it('write a test file', function() {
     return writeTestFile();
   });
 
-  it('write and then read simple test file', function() {
+  it('write a test file and then read it back', function() {
     return writeTestFile().then(readTestFile);
   });
 

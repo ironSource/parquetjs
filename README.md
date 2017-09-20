@@ -37,7 +37,7 @@ var parquet = require('parquetjs');
 ```
 
 Parquet files have a strict schema, similar to tables in a SQL database. So,
-in order to produce a parquet file we first need to declare a new schema. Here
+in order to produce a Parquet file we first need to declare a new schema. Here
 is a simple example that shows how to instantiate a `ParquetSchema` object:
 
 ``` js
@@ -51,12 +51,12 @@ var schema = new parquet.ParquetSchema({
 });
 ```
 
-Note the Parquet schema supports nesting, so you can store arbitrarily complex and
-nested records in a single row (more on that later) while still maintaining good
+Note that the Parquet schema supports nesting, so you can store complex, arbitrarily
+nested records into a single row (more on that later) while still maintaining good
 compression.
 
 Once we have a schema, we can create a `ParquetWriter` object. The writer will
-take input rows as JSON objects, convert them to the parquet format and store
+take input rows as JSON objects, convert them to the Parquet format and store
 them on disk. 
 
 ``` js
@@ -114,7 +114,7 @@ var schema = new parquet.ParquetSchema({
 Optional Fields
 ---------------
 
-By default, all fields all required to be present in each row. You can also mark
+By default, all fields are required to be present in each row. You can also mark
 a field as 'optional' which will let you store rows with that field missing:
 
 ``` js
@@ -178,19 +178,20 @@ writer.appendRow({
 
 It might not be obvious why one would want to implement or use such a feature when
 the same can - in  principle - be achieved by serializing the record using JSON
-(or a similar scheme) and then storing it into a UTF8 field.
+(or a similar scheme) and then storing it into a UTF8 field:
 
 Putting aside the philosophical discussion on the merits of strict typing,
 knowing about the structure and subtypes of all records (globally) means we do not
-have to store this date (i.e. the field names) for every record and on top of
-that allows us to compress the remaining data far more efficiently.
+have to duplicate this metadata (i.e. the field names) for every record. On top
+of that, knowing about the type of a field allows us to compress the remaining
+data far more efficiently.
 
 
 List of Supported Types & Encodings
 -----------------------------------
 
 We aim to be feature-complete and add new features as they are added to the
-parquet specification; this is the list of currently implemented data types and
+Parquet specification; this is the list of currently implemented data types and
 encodings:
 
 <table>
@@ -223,7 +224,7 @@ encodings:
 Buffering & Row Group Size
 --------------------------
 
-When writing a parquet file, the `ParquetWriter` will buffer rows in memory
+When writing a Parquet file, the `ParquetWriter` will buffer rows in memory
 until a row group is complete (or `end()` is called) and then write out the row
 group to disk.
 
