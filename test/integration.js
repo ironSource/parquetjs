@@ -1,7 +1,7 @@
 'use strict';
 const chai = require('chai');
 const assert = chai.assert;
-const parquet = require('..');
+const parquet = require('../parquet.js');
 
 // FIXME: tempdir?
 // write a new file 'fruits.parquet'
