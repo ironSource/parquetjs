@@ -84,7 +84,31 @@ Encodings
 Internally, the Parquet format will store values from each field as consecutive
 arrays which can be compressed/encoded using a number of schemes.
 
-    FIXME
+#### Plain Encoding (PLAIN)
+
+The most simple encoding scheme is the PLAIN encoding. It simply stores the
+values as they are without any compression. The PLAIN encoding is currently
+the default for all types except `BOOLEAN`:
+
+``` js
+var schema = new parquet.ParquetSchema({
+  "name": { type: "STRING", encoding: "PLAIN" },
+});
+```
+
+#### Run Length Encoding (RLE)
+
+The Parquet hybrid run length and bitpacking encoding allows to compress runs
+of numbers very efficiently. Note that the RLE encoding can only be used in
+combination with the `BOOLEAN`, `INT32` and `INT64` types. The RLE encoding
+requires an additional `bitWidth` parameter that contains the maximum number of
+bits required to store the largest value of the field.
+
+``` js
+var schema = new parquet.ParquetSchema({
+  "age": { type: "UINT32", encoding: "RLE", bitWidth: 7 },
+});
+```
 
 
 Optional Fields
