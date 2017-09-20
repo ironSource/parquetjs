@@ -13,14 +13,34 @@ for compatibility with Apache's Java [reference implementation](https://github.c
 write a large amount of structured data to a file, compress it and then read parts
 of it back out efficiently. The Parquet format is based on [Google's Dremel paper](https://www.google.co.nz/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwj_tJelpv3UAhUCm5QKHfJODhUQFggsMAE&url=http%3A%2F%2Fwww.vldb.org%2Fpvldb%2Fvldb2010%2Fpapers%2FR29.pdf&usg=AFQjCNGyMk3_JltVZjMahP6LPmqMzYdCkw).
 
+Installation
+------------
+
+To use parquet.js with node.js, add this to your `package.json` and run `npm install`:
+
+    "dependencies": {
+      "parquetjs": "^0.0.1"
+    }
+
 Usage
 -----
+
+Once you have installed the parquet.js library, you can import it as a single
+module:
+
+    var parquet = require('parquetjs');
+
+Parquet files have a strict schema, similar to a table in an SQL database. So,
+in order to produce a parquet file we first need to declare a new schema.
+
+Note the Parquet schema supports nesting, so you can store arbitrarily complex and
+nested records in a single row (more on that later) while still maintaining good
+compression.
+
 
 Here is the full example to write out our 'fruits.parquet' file:
 
 ``` js
-var parquet = require('parquetjs');
-
 var schema = new parquet.ParquetSchema({
   "name": { type: "STRING" },
   "quantity": { type: "INT64" },
@@ -34,6 +54,64 @@ writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), i
 writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
 writer.end();
 ```
+
+Nested Rows & Arrays
+--------------------
+
+Parquet supports nested schemas that allow you to store rows that have a more
+complex structure than a simple tuple of scalar values. To declare a schema
+with a nested field, omit type `type` key and add a `fields` list instead:
+
+Consider this example, which allows us to store a more advanced "fruits" table
+where each row contains a name, a list of colours and a list of "stock" objects. 
+
+``` js
+// advanced fruits table
+var schema = new parquet.ParquetSchema({
+  "name": { type: "STRING" },
+  "colour": { type: "STRING", repeated: true },
+  "stock": {
+    repeated: true,
+    fields: [
+      "price": { type: "DOUBLE" },
+      "quantity": { type: "INT64" },
+    ]
+  }
+});
+```
+
+The above schema allows us to store the following rows:
+
+``` js
+// Row 1: Banana
+{
+  name: "banana",
+  colours: ["yellow"],
+  stock: [
+    { price: 2.45, quantity: 16 },
+    { price: 2.60, quantity: 420 }
+  ]
+}
+
+// Row 2: Apple
+{
+  name: "apple",
+  colours: ["red", "green"],
+  stock: [
+    { price: 1.20, quantity: 42 },
+    { price: 1.30, quantity: 230 }
+  ]
+}
+```
+
+It might not be obvious why one would want to implement or use such a feature when
+the same can - in  principle - be achieved by serializing the record using JSON
+(or a similar scheme) and then storing it into a STRING field.
+
+Putting aside the philosophical discussion on the merits of strict typing,
+knowing about the structure and subtypes of all records (globally) means we do not
+have to store this date (i.e. the field names) for every record and on top of
+that allows us to compress the remaining data far more efficiently.
 
 
 Supported Types & Encodings
