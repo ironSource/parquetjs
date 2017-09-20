@@ -68,6 +68,31 @@ to flush the metadata to disk and close the file by calling the `end()` method:
 That is all! You should now have a `fruits.parquet` file containing your data. 
 
 
+Encodings
+---------
+
+Internally, the Parquet format will store values from each field as consecutive
+arrays which can be compressed/encoded using a number of schemes.
+
+
+Optional Fields
+---------------
+
+By default, all fields all required to be present in each row. You can also mark
+a field as 'optional' which will let you store rows with that field missing:
+
+``` js
+var schema = new parquet.ParquetSchema({
+  "name": { type: "STRING" },
+  "quantity": { type: "INT64", optional: true },
+});
+
+var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+writer.appendRow({name: 'apples', quantity: 10 });
+writer.appendRow({name: 'banana' }); // not in stock
+```
+
+
 Nested Rows & Arrays
 --------------------
 
@@ -127,8 +152,8 @@ have to store this date (i.e. the field names) for every record and on top of
 that allows us to compress the remaining data far more efficiently.
 
 
-Supported Types & Encodings
----------------------------
+List of Supported Types & Encodings
+-----------------------------------
 
 We aim to be feature-complete and add new features as they are added to the
 parquet specification; this is the list of currently implemented data types and
@@ -159,6 +184,10 @@ encodings:
   <tr><td>INT_32</td><td>INT32</td><td>PLAIN, RLE</td></tr>
   <tr><td>INT_64</td><td>INT64</td><td>PLAIN, RLE</td></tr>
 </table>
+
+
+Buffering & Row Group Size
+--------------------------
 
 
 Depdendencies
