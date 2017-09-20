@@ -99,28 +99,29 @@ async function readTestFile() {
     assert.equal(await cursor.next(), null);
   }
 
-  {
-    let cursor = reader.getCursor(['name', 'quantity']);
-    for (let i = 0; i < 10000; ++i) {
-      assert.deepEqual(await cursor.next(), { name: 'apples', quantity: 10 });
-      assert.deepEqual(await cursor.next(), { name: 'oranges', quantity: 20 });
-      assert.deepEqual(await cursor.next(), { name: 'kiwi' });
-      assert.deepEqual(await cursor.next(), { name: 'banana' });
-    }
+  //{
+  //  let cursor = reader.getCursor(['name', 'quantity']);
+  //  for (let i = 0; i < 10000; ++i) {
+  //    assert.deepEqual(await cursor.next(), { name: 'apples', quantity: 10 });
+  //    assert.deepEqual(await cursor.next(), { name: 'oranges', quantity: 20 });
+  //    assert.deepEqual(await cursor.next(), { name: 'kiwi' });
+  //    assert.deepEqual(await cursor.next(), { name: 'banana' });
+  //  }
 
-    assert.equal(await cursor.next(), null);
-  }
+  //  assert.equal(await cursor.next(), null);
+  //}
 
   reader.close();
 }
 
-async function performTest() {
-  await writeTestFile();
-  await readTestFile();
-}
+describe('Parquet', function() {
 
-performTest().catch(function(err) {
-  console.error(err);
-  process.exit(1);
+  it('write a simple test file', function() {
+    return writeTestFile();
+  });
+
+  it('write and then read simple test file', function() {
+    return writeTestFile().then(readTestFile);
+  });
+
 });
-

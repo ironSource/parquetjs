@@ -11,13 +11,14 @@
     "bson": "^1.0.4",
     "chai": "^4.1.1",
     "int53": "^0.2.4",
+    "mocha": "^3.5.3",
     "pako": "^1.0.5",
     "thrift": "^0.10.0",
     "varint": "^5.0.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "set -e; for t in test/*.js; do node $t; done"
+    "test": "mocha"
   },
   "author": "The ParquetJS Authors <parquet-js-authors@ironsrc.com>",
   "license": "MIT"
