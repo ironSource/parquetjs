@@ -19,9 +19,11 @@ Installation
 
 To use parquet.js with node.js, add this to your `package.json` and run `npm install`:
 
-    "dependencies": {
-      "parquetjs": "^0.0.1"
-    }
+``` js
+"dependencies": {
+  "parquetjs": "^0.0.1"
+}
+```
 
 
 Usage: Writing files
@@ -30,20 +32,24 @@ Usage: Writing files
 Once you have installed the parquet.js library, you can import it as a single
 module:
 
-    var parquet = require('parquetjs');
+``` js
+var parquet = require('parquetjs');
+```
 
 Parquet files have a strict schema, similar to tables in a SQL database. So,
 in order to produce a parquet file we first need to declare a new schema. Here
 is a simple example that shows how to instantiate a `ParquetSchema` object:
 
-    // declare a schema for the `fruits` table
-    var schema = new parquet.ParquetSchema({
-      "name": { type: "STRING" },
-      "quantity": { type: "INT64" },
-      "price": { type: "DOUBLE" },
-      "date": { type: "TIMESTAMP" },
-      "in_stock": { type: "BOOLEAN" }
-    });
+``` js
+// declare a schema for the `fruits` table
+var schema = new parquet.ParquetSchema({
+  "name": { type: "STRING" },
+  "quantity": { type: "INT64" },
+  "price": { type: "DOUBLE" },
+  "date": { type: "TIMESTAMP" },
+  "in_stock": { type: "BOOLEAN" }
+});
+```
 
 Note the Parquet schema supports nesting, so you can store arbitrarily complex and
 nested records in a single row (more on that later) while still maintaining good
@@ -53,17 +59,21 @@ Once we have a schema, we can create a `ParquetWriter` object. The writer will
 take input rows as JSON objects, convert them to the parquet format and store
 them on disk. 
 
-    // create new ParquetWriter that writes to 'fruits.parquet`
-    var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+``` js
+// create new ParquetWriter that writes to 'fruits.parquet`
+var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
 
-    // append a few rows to the file
-    writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-    writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+// append a few rows to the file
+writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+```
 
 Once we are finished adding rows to the file, we have to tell the writer object
 to flush the metadata to disk and close the file by calling the `end()` method:
 
-    writer.end();
+``` js
+writer.end();
+```
 
 That is all! You should now have a `fruits.parquet` file containing your data. 
 
@@ -73,6 +83,8 @@ Encodings
 
 Internally, the Parquet format will store values from each field as consecutive
 arrays which can be compressed/encoded using a number of schemes.
+
+    FIXME
 
 
 Optional Fields
@@ -98,7 +110,8 @@ Nested Rows & Arrays
 
 Parquet supports nested schemas that allow you to store rows that have a more
 complex structure than a simple tuple of scalar values. To declare a schema
-with a nested field, omit type `type` key and add a `fields` list instead:
+with a nested field, omit the `type` in the column definition and add a `fields`
+list instead:
 
 Consider this example, which allows us to store a more advanced "fruits" table
 where each row contains a name, a list of colours and a list of "stock" objects. 
@@ -116,30 +129,27 @@ var schema = new parquet.ParquetSchema({
     ]
   }
 });
-```
 
-The above schema allows us to store the following rows:
+// the above schema allows us to store the following rows:
+var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
 
-``` js
-// Row 1: Banana
-{
+writer.appendRow({
   name: "banana",
   colours: ["yellow"],
   stock: [
     { price: 2.45, quantity: 16 },
     { price: 2.60, quantity: 420 }
   ]
-}
+});
 
-// Row 2: Apple
-{
+writer.appendRow({
   name: "apple",
   colours: ["red", "green"],
   stock: [
     { price: 1.20, quantity: 42 },
     { price: 1.30, quantity: 230 }
   ]
-}
+});
 ```
 
 It might not be obvious why one would want to implement or use such a feature when
@@ -188,6 +198,8 @@ encodings:
 
 Buffering & Row Group Size
 --------------------------
+
+    FIXME
 
 
 Depdendencies
