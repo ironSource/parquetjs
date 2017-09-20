@@ -43,7 +43,7 @@ is a simple example that shows how to instantiate a `ParquetSchema` object:
 ``` js
 // declare a schema for the `fruits` table
 var schema = new parquet.ParquetSchema({
-  name: { type: 'STRING' },
+  name: { type: 'UTF8' },
   quantity: { type: 'INT64' },
   price: { type: 'DOUBLE' },
   date: { type: 'TIMESTAMP' },
@@ -92,7 +92,7 @@ the default for all types except `BOOLEAN`:
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  name: { type: 'STRING', encoding: 'PLAIN' },
+  name: { type: 'UTF8', encoding: 'PLAIN' },
 });
 ```
 
@@ -119,7 +119,7 @@ a field as 'optional' which will let you store rows with that field missing:
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  name: { type: 'STRING' },
+  name: { type: 'UTF8' },
   quantity: { type: 'INT64', optional: true },
 });
 
@@ -143,8 +143,8 @@ where each row contains a name, a list of colours and a list of "stock" objects.
 ``` js
 // advanced fruits table
 var schema = new parquet.ParquetSchema({
-  name: { type: 'STRING' },
-  colour: { type: 'STRING', repeated: true },
+  name: { type: 'UTF8' },
+  colour: { type: 'UTF8', repeated: true },
   stock: {
     repeated: true,
     fields: [
@@ -178,7 +178,7 @@ writer.appendRow({
 
 It might not be obvious why one would want to implement or use such a feature when
 the same can - in  principle - be achieved by serializing the record using JSON
-(or a similar scheme) and then storing it into a STRING field.
+(or a similar scheme) and then storing it into a UTF8 field.
 
 Putting aside the philosophical discussion on the merits of strict typing,
 knowing about the structure and subtypes of all records (globally) means we do not
