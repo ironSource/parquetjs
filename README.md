@@ -13,6 +13,7 @@ for compatibility with Apache's Java [reference implementation](https://github.c
 write a large amount of structured data to a file, compress it and then read parts
 of it back out efficiently. The Parquet format is based on [Google's Dremel paper](https://www.google.co.nz/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwj_tJelpv3UAhUCm5QKHfJODhUQFggsMAE&url=http%3A%2F%2Fwww.vldb.org%2Fpvldb%2Fvldb2010%2Fpapers%2FR29.pdf&usg=AFQjCNGyMk3_JltVZjMahP6LPmqMzYdCkw).
 
+
 Installation
 ------------
 
@@ -22,38 +23,50 @@ To use parquet.js with node.js, add this to your `package.json` and run `npm ins
       "parquetjs": "^0.0.1"
     }
 
-Usage
------
+
+Usage: Writing files
+--------------------
 
 Once you have installed the parquet.js library, you can import it as a single
 module:
 
     var parquet = require('parquetjs');
 
-Parquet files have a strict schema, similar to a table in an SQL database. So,
-in order to produce a parquet file we first need to declare a new schema.
+Parquet files have a strict schema, similar to tables in a SQL database. So,
+in order to produce a parquet file we first need to declare a new schema. Here
+is a simple example that shows how to instantiate a `ParquetSchema` object:
+
+    // declare a schema for the `fruits` table
+    var schema = new parquet.ParquetSchema({
+      "name": { type: "STRING" },
+      "quantity": { type: "INT64" },
+      "price": { type: "DOUBLE" },
+      "date": { type: "TIMESTAMP" },
+      "in_stock": { type: "BOOLEAN" }
+    });
 
 Note the Parquet schema supports nesting, so you can store arbitrarily complex and
 nested records in a single row (more on that later) while still maintaining good
 compression.
 
+Once we have a schema, we can create a `ParquetWriter` object. The writer will
+take input rows as JSON objects, convert them to the parquet format and store
+them on disk. 
 
-Here is the full example to write out our 'fruits.parquet' file:
+    // create new ParquetWriter that writes to 'fruits.parquet`
+    var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
 
-``` js
-var schema = new parquet.ParquetSchema({
-  "name": { type: "STRING" },
-  "quantity": { type: "INT64" },
-  "price": { type: "DOUBLE" },
-  "date": { type: "TIMESTAMP" },
-  "in_stock": { type: "BOOLEAN" }
-});
+    // append a few rows to the file
+    writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+    writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
 
-var writer = new parquet.ParquetFileWriter(schema, 'test.parquet');
-writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-writer.end();
-```
+Once we are finished adding rows to the file, we have to tell the writer object
+to flush the metadata to disk and close the file by calling the `end()` method:
+
+    writer.end();
+
+That is all! You should now have a `fruits.parquet` file containing your data. 
+
 
 Nested Rows & Arrays
 --------------------
