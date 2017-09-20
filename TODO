@@ -1,17 +1,16 @@
 writer:
-  - doc: supported encodings tables
-  - ParquetWriter opts (page_size, row_group_size, compression)
-  - maxbits/encoding (RLE) parameter in example
   - improved RLE encoding
-  - converted type: decimal
-  - converted type: time (interval)
-  - nested schema
   - encodings: dictionary*, delta*
-  - fixed length byte array
   - make bit_width configurable
+  - tests
   - checksums
   - page header v2
   - compression
+  - ParquetWriter opts (page_size, row_group_size, compression)
+  - converted type: decimal
+  - converted type: time (interval)
+  - nested schema
+  - fixed length byte array
   - kv metadata
   - statistics
   - index pages

@@ -106,7 +106,7 @@ bits required to store the largest value of the field.
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  age: { type: 'UINT32', encoding: 'RLE', bitWidth: 7 },
+  age: { type: 'UINT_32', encoding: 'RLE', bitWidth: 7 },
 });
 ```
 
@@ -213,10 +213,10 @@ encodings:
   <tr><td>INT_16</td><td>INT32</td><td>PLAIN, RLE</td></tr>
   <tr><td>INT_32</td><td>INT32</td><td>PLAIN, RLE</td></tr>
   <tr><td>INT_64</td><td>INT64</td><td>PLAIN, RLE</td></tr>
-  <tr><td>INT_8</td><td>INT32</td><td>PLAIN, RLE</td></tr>
-  <tr><td>INT_16</td><td>INT32</td><td>PLAIN, RLE</td></tr>
-  <tr><td>INT_32</td><td>INT32</td><td>PLAIN, RLE</td></tr>
-  <tr><td>INT_64</td><td>INT64</td><td>PLAIN, RLE</td></tr>
+  <tr><td>UINT_8</td><td>INT32</td><td>PLAIN, RLE</td></tr>
+  <tr><td>UINT_16</td><td>INT32</td><td>PLAIN, RLE</td></tr>
+  <tr><td>UINT_32</td><td>INT32</td><td>PLAIN, RLE</td></tr>
+  <tr><td>UINT_64</td><td>INT64</td><td>PLAIN, RLE</td></tr>
 </table>
 
 
