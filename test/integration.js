@@ -99,6 +99,18 @@ async function readTestFile() {
     assert.equal(await cursor.next(), null);
   }
 
+  {
+    let cursor = reader.getCursor(['name', 'quantity']);
+    for (let i = 0; i < 10000; ++i) {
+      assert.deepEqual(await cursor.next(), { name: 'apples', quantity: 10 });
+      assert.deepEqual(await cursor.next(), { name: 'oranges', quantity: 20 });
+      assert.deepEqual(await cursor.next(), { name: 'kiwi' });
+      assert.deepEqual(await cursor.next(), { name: 'banana' });
+    }
+
+    assert.equal(await cursor.next(), null);
+  }
+
   reader.close();
 }
 
