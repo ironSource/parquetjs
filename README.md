@@ -43,11 +43,11 @@ is a simple example that shows how to instantiate a `ParquetSchema` object:
 ``` js
 // declare a schema for the `fruits` table
 var schema = new parquet.ParquetSchema({
-  "name": { type: "STRING" },
-  "quantity": { type: "INT64" },
-  "price": { type: "DOUBLE" },
-  "date": { type: "TIMESTAMP" },
-  "in_stock": { type: "BOOLEAN" }
+  name: { type: 'STRING' },
+  quantity: { type: 'INT64' },
+  price: { type: 'DOUBLE' },
+  date: { type: 'TIMESTAMP' },
+  in_stock: { type: 'BOOLEAN' }
 });
 ```
 
@@ -92,7 +92,7 @@ the default for all types except `BOOLEAN`:
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  "name": { type: "STRING", encoding: "PLAIN" },
+  name: { type: 'STRING', encoding: 'PLAIN' },
 });
 ```
 
@@ -106,7 +106,7 @@ bits required to store the largest value of the field.
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  "age": { type: "UINT32", encoding: "RLE", bitWidth: 7 },
+  age: { type: 'UINT32', encoding: 'RLE', bitWidth: 7 },
 });
 ```
 
@@ -119,8 +119,8 @@ a field as 'optional' which will let you store rows with that field missing:
 
 ``` js
 var schema = new parquet.ParquetSchema({
-  "name": { type: "STRING" },
-  "quantity": { type: "INT64", optional: true },
+  name: { type: 'STRING' },
+  quantity: { type: 'INT64', optional: true },
 });
 
 var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
@@ -143,13 +143,13 @@ where each row contains a name, a list of colours and a list of "stock" objects.
 ``` js
 // advanced fruits table
 var schema = new parquet.ParquetSchema({
-  "name": { type: "STRING" },
-  "colour": { type: "STRING", repeated: true },
-  "stock": {
+  name: { type: 'STRING' },
+  colour: { type: 'STRING', repeated: true },
+  stock: {
     repeated: true,
     fields: [
-      "price": { type: "DOUBLE" },
-      "quantity": { type: "INT64" },
+      price: { type: 'DOUBLE' },
+      quantity: { type: 'INT64' },
     ]
   }
 });
@@ -158,8 +158,8 @@ var schema = new parquet.ParquetSchema({
 var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
 
 writer.appendRow({
-  name: "banana",
-  colours: ["yellow"],
+  name: 'banana',
+  colours: ['yellow'],
   stock: [
     { price: 2.45, quantity: 16 },
     { price: 2.60, quantity: 420 }
@@ -167,8 +167,8 @@ writer.appendRow({
 });
 
 writer.appendRow({
-  name: "apple",
-  colours: ["red", "green"],
+  name: 'apple',
+  colours: ['red', 'green'],
   stock: [
     { price: 1.20, quantity: 42 },
     { price: 1.30, quantity: 230 }
@@ -229,9 +229,8 @@ Buffering & Row Group Size
 Depdendencies
 -------------
 
-Parquet uses [thrift](https://thrift.apache.org/) (basically facebook's version of
-[protocol buffers](https://developers.google.com/protocol-buffers/)) to encode the schema
-and other metadata, but the actual data does not use thrift.
+Parquet uses [thrift](https://thrift.apache.org/) to encode the schema and other
+metadata, but the actual data does not use thrift.
 
 
 License
