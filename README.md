@@ -223,7 +223,18 @@ encodings:
 Buffering & Row Group Size
 --------------------------
 
-    FIXME
+When writing a parquet file, the `ParquetWriter` will buffer rows in memory
+until a row group is complete (or `end()` is called) and then write out the row
+group to disk.
+
+The size of a row group is configurable by the user and controls the maximum
+number of rows that are buffered in memory at any given time as well as the number
+of rows that are co-located on disk:
+
+``` js
+var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+writer.setRowGroupSize(8192);
+```
 
 
 Depdendencies
