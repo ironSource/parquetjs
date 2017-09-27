@@ -3,9 +3,11 @@ const chai = require('chai');
 const assert = chai.assert;
 const parquet = require('../parquet.js');
 
+const TEST_NUM_ROWS = 10000;
+
 // FIXME: tempdir?
 // write a new file 'fruits.parquet'
-async function writeTestFile() {
+async function writeTestFile(opts) {
   let schema = new parquet.ParquetSchema({
     name:       { type: 'UTF8' },
     quantity:   { type: 'INT64', optional: true },
@@ -16,9 +18,9 @@ async function writeTestFile() {
     meta_json:  { type: 'BSON', optional: true  },
   });
 
-  let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
+  let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
 
-  for (let i = 0; i < 10000; ++i) {
+  for (let i = 0; i < TEST_NUM_ROWS; ++i) {
     await writer.appendRow({
       name: 'apples',
       quantity: 10,
@@ -61,7 +63,7 @@ async function writeTestFile() {
 
 async function readTestFile() {
   let reader = await parquet.ParquetReader.openFile('fruits.parquet');
-  assert.equal(reader.getRowCount(), 40000);
+  assert.equal(reader.getRowCount(), TEST_NUM_ROWS * 4);
 
   let schema = reader.getSchema();
   assert.equal(schema.columns.length, 7);
@@ -89,7 +91,7 @@ async function readTestFile() {
 
   {
     let cursor = reader.getCursor(['name']);
-    for (let i = 0; i < 10000; ++i) {
+    for (let i = 0; i < TEST_NUM_ROWS; ++i) {
       assert.deepEqual(await cursor.next(), { name: 'apples' });
       assert.deepEqual(await cursor.next(), { name: 'oranges' });
       assert.deepEqual(await cursor.next(), { name: 'kiwi' });
@@ -116,12 +118,24 @@ async function readTestFile() {
 
 describe('Parquet', function() {
 
-  it('write a test file', function() {
-    return writeTestFile();
+  describe('with DataPageHeaderV1', function() {
+    it('write a test file', function() {
+      return writeTestFile({ useDataPageV2: false });
+    });
+
+    it('write a test file and then read it back', function() {
+      return writeTestFile({ useDataPageV2: false }).then(readTestFile);
+    });
   });
 
-  it('write a test file and then read it back', function() {
-    return writeTestFile().then(readTestFile);
+  describe('with DataPageHeaderV2', function() {
+    it('write a test file', function() {
+      return writeTestFile({ useDataPageV2: true });
+    });
+
+    //it('write a test file and then read it back', function() {
+    //  return writeTestFile({ useDataPageV2: true }).then(readTestFile);
+    //});
   });
 
 });
