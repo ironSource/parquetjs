@@ -19,6 +19,8 @@ async function writeTestFile(opts) {
   });
 
   let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
+  writer.setMetadata("myuid", "420");
+  writer.setMetadata("fnord", "dronf");
 
   for (let i = 0; i < TEST_NUM_ROWS; ++i) {
     await writer.appendRow({
@@ -64,6 +66,7 @@ async function writeTestFile(opts) {
 async function readTestFile() {
   let reader = await parquet.ParquetReader.openFile('fruits.parquet');
   assert.equal(reader.getRowCount(), TEST_NUM_ROWS * 4);
+  assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
   assert.equal(schema.columns.length, 7);
