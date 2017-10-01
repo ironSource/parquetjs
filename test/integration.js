@@ -14,7 +14,7 @@ async function writeTestFile(opts) {
     price:      { type: 'DOUBLE' },
     date:       { type: 'TIMESTAMP_MICROS' },
     in_stock:   { type: 'BOOLEAN' },
-    colour:     { type: 'UTF8', repeated: true },
+    colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
     meta_json:  { type: 'BSON', optional: true  },
   });
 
@@ -120,22 +120,26 @@ describe('Parquet', function() {
 
   describe('with DataPageHeaderV1', function() {
     it('write a test file', function() {
-      return writeTestFile({ useDataPageV2: false });
+      const opts = { useDataPageV2: false, compression: 'UNCOMPRESSED' };
+      return writeTestFile(opts);
     });
 
     it('write a test file and then read it back', function() {
-      return writeTestFile({ useDataPageV2: false }).then(readTestFile);
+      const opts = { useDataPageV2: false, compression: 'UNCOMPRESSED' };
+      return writeTestFile(opts).then(readTestFile);
     });
   });
 
   describe('with DataPageHeaderV2', function() {
     it('write a test file', function() {
-      return writeTestFile({ useDataPageV2: true });
+      const opts = { useDataPageV2: true, compression: 'UNCOMPRESSED' };
+      return writeTestFile(opts);
     });
 
-    //it('write a test file and then read it back', function() {
-    //  return writeTestFile({ useDataPageV2: true }).then(readTestFile);
-    //});
+    it('write a test file with GZIP compression', function() {
+      const opts = { useDataPageV2: true, compression: 'GZIP' };
+      return writeTestFile(opts);
+    });
   });
 
 });
