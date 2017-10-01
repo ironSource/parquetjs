@@ -139,12 +139,15 @@ describe('ParquetShredder', function() {
     assert.deepEqual(colData.name.dlevels, [0, 0, 0]);
     assert.deepEqual(colData.name.rlevels, [0, 0, 0]);
     assert.deepEqual(colData.name.values.map((x) => x.toString()), ["apple", "orange", "banana"]);
+    assert.deepEqual(colData.name.count, 3);
     assert.deepEqual(colData.colours.dlevels, [1, 1, 1, 1]);
     assert.deepEqual(colData.colours.rlevels, [0, 1, 0, 0]);
     assert.deepEqual(colData.colours.values.map((x) => x.toString()), ["red", "green", "orange", "yellow"]);
+    assert.deepEqual(colData.colours.count, 4);
     assert.deepEqual(colData.price.dlevels, [0, 0, 0]);
     assert.deepEqual(colData.price.rlevels, [0, 0, 0]);
     assert.deepEqual(colData.price.values, [23.5, 17.1, 42]);
+    assert.deepEqual(colData.price.count, 3);
   });
 
 });
