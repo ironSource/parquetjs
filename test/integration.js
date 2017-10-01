@@ -140,6 +140,11 @@ describe('Parquet', function() {
       const opts = { useDataPageV2: true, compression: 'GZIP' };
       return writeTestFile(opts);
     });
+
+    it('write a test file with SNAPPY compression', function() {
+      const opts = { useDataPageV2: true, compression: 'SNAPPY' };
+      return writeTestFile(opts);
+    });
   });
 
 });
