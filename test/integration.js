@@ -120,6 +120,7 @@ async function readTestFile() {
 }
 
 describe('Parquet', function() {
+  this.timeout(60000);
 
   describe('with DataPageHeaderV1', function() {
     it('write a test file', function() {

@@ -25,6 +25,8 @@ To use parquet.js with node.js, add this to your `package.json` and run `npm ins
 }
 ```
 
+_parquet.js requires node.js >= 7.6.0_
+
 
 Usage: Writing files
 --------------------
