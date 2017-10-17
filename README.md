@@ -17,12 +17,10 @@ of it back out efficiently. The Parquet format is based on [Google's Dremel pape
 Installation
 ------------
 
-To use parquet.js with node.js, add this to your `package.json` and run `npm install`:
+To use parquet.js with node.js, install it using npm:
 
-``` js
-"dependencies": {
-  "parquetjs": "^0.0.1"
-}
+```
+  $ npm install parquetjs
 ```
 
 _parquet.js requires node.js >= 7.6.0_
