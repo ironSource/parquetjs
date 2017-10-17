@@ -1,3 +1,9 @@
 language: node_js
 node_js:
-  - 0.8
+  - 7
+deploy:
+  provider: npm
+  email: "npm@ironsrc.com"
+  api_key: $npm.api_key
+  on:
+    tags: true
