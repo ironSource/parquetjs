@@ -4,6 +4,6 @@ node_js:
 deploy:
   provider: npm
   email: "npm@ironsrc.com"
-  api_key: $npm.api_key
+  api_key: $npm_api_key
   on:
     tags: true
