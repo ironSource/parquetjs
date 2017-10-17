@@ -2,7 +2,7 @@
   "name": "parquetjs",
   "description": "Read and write parquet files from node.js",
   "main": "parquet.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/ironsource/parquetjs",
   "author": "The ParquetJS Authors <parquet-js-authors@ironsrc.com>",
   "license": "MIT",
