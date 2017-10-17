@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - 7.0
+  - 7
 deploy:
   provider: npm
   email: "npm@ironsrc.com"
