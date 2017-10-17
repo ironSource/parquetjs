@@ -1,6 +1,6 @@
 {
   "name": "parquetjs",
-  "description": "Read and write parquet files from node.js",
+  "description": "fully asynchronous, pure JavaScript implementation of the Parquet file format",
   "main": "parquet.js",
   "version": "0.2.0",
   "homepage": "https://github.com/ironSource/parquetjs",
@@ -24,7 +24,7 @@
     "varint": "^5.0.0"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
+    "chai": "^4.1.2",
     "mocha": "^3.5.3"
   },
   "scripts": {

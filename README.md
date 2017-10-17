@@ -1,5 +1,7 @@
 # parquet.js
 
+fully asynchronous, pure JavaScript implementation of the Parquet file format
+
 [![Build Status](https://travis-ci.org/ironSource/parquetjs.png?branch=master)](http://travis-ci.org/ironSource/parquetjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/parquetjs.svg)](https://badge.fury.io/js/parquetjs)
