@@ -28,6 +28,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -41,6 +43,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -54,6 +58,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
   });
@@ -81,6 +87,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -94,6 +102,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -107,6 +117,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
   });
 
@@ -133,6 +145,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -146,6 +160,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 1);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -159,6 +175,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
   });
 
@@ -174,7 +192,7 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 4);
+    assert.equal(schema.columns.length, 5);
     assert(schema.column_map.name);
     assert(schema.column_map.stock);
     assert(schema.column_map.stock.fields.quantity);
@@ -192,6 +210,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -205,6 +225,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, undefined);
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, true);
+      assert.equal(c.fieldCount, 2);
     }
 
     {
@@ -218,6 +240,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -231,6 +255,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -244,6 +270,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
   });
 
@@ -260,7 +288,7 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 4);
+    assert.equal(schema.columns.length, 5);
     assert(schema.column_map.name);
     assert(schema.column_map.stock);
     assert(schema.column_map.stock.fields.quantity);
@@ -278,6 +306,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -291,6 +321,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, undefined);
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, true);
+      assert.equal(c.fieldCount, 2);
     }
 
     {
@@ -304,6 +336,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 2);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -317,6 +351,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -330,6 +366,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
   });
 
@@ -346,7 +384,7 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 4);
+    assert.equal(schema.columns.length, 5);
     assert(schema.column_map.name);
     assert(schema.column_map.stock);
     assert(schema.column_map.stock.fields.quantity);
@@ -364,6 +402,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -377,6 +417,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, undefined);
       assert.equal(c.rLevelMax, 1);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, true);
+      assert.equal(c.fieldCount, 2);
     }
 
     {
@@ -390,6 +432,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 1);
       assert.equal(c.dLevelMax, 2);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -403,6 +447,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 1);
       assert.equal(c.dLevelMax, 1);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
 
     {
@@ -416,6 +462,8 @@ describe('ParquetSchema', function() {
       assert.equal(c.compression, 'UNCOMPRESSED');
       assert.equal(c.rLevelMax, 0);
       assert.equal(c.dLevelMax, 0);
+      assert.equal(!!c.isNested, false);
+      assert.equal(c.fieldCount, undefined);
     }
   });
 
