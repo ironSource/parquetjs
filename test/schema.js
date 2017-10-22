@@ -12,13 +12,13 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 3);
-    assert(schema.column_map.name);
-    assert(schema.column_map.quantity);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 3);
+    assert(schema.fields.name);
+    assert(schema.fields.quantity);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -33,7 +33,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.quantity;
+      const c = schema.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -48,7 +48,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);
@@ -64,20 +64,20 @@ describe('ParquetSchema', function() {
 
   });
 
-  it('should assign correct defaults in a flat schema with optional columns', function() {
+  it('should assign correct defaults in a flat schema with optional fieldList', function() {
     var schema = new parquet.ParquetSchema({
       name: { type: 'UTF8' },
       quantity: { type: 'INT64', optional: true },
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 3);
-    assert(schema.column_map.name);
-    assert(schema.column_map.quantity);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 3);
+    assert(schema.fields.name);
+    assert(schema.fields.quantity);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -92,7 +92,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.quantity;
+      const c = schema.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -107,7 +107,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);
@@ -122,20 +122,20 @@ describe('ParquetSchema', function() {
     }
   });
 
-  it('should assign correct defaults in a flat schema with repeated columns', function() {
+  it('should assign correct defaults in a flat schema with repeated fieldList', function() {
     var schema = new parquet.ParquetSchema({
       name: { type: 'UTF8' },
       quantity: { type: 'INT64', repeated: true },
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 3);
-    assert(schema.column_map.name);
-    assert(schema.column_map.quantity);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 3);
+    assert(schema.fields.name);
+    assert(schema.fields.quantity);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -150,7 +150,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.quantity;
+      const c = schema.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -165,7 +165,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);
@@ -192,15 +192,15 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 5);
-    assert(schema.column_map.name);
-    assert(schema.column_map.stock);
-    assert(schema.column_map.stock.fields.quantity);
-    assert(schema.column_map.stock.fields.warehouse);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 5);
+    assert(schema.fields.name);
+    assert(schema.fields.stock);
+    assert(schema.fields.stock.fields.quantity);
+    assert(schema.fields.stock.fields.warehouse);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -215,7 +215,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock;
+      const c = schema.fields.stock;
       assert.equal(c.name, 'stock');
       assert.equal(c.primitiveType, undefined);
       assert.equal(c.originalType, undefined);
@@ -230,7 +230,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.quantity;
+      const c = schema.fields.stock.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -245,7 +245,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.warehouse;
+      const c = schema.fields.stock.fields.warehouse;
       assert.equal(c.name, 'warehouse');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -260,7 +260,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);
@@ -288,15 +288,15 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 5);
-    assert(schema.column_map.name);
-    assert(schema.column_map.stock);
-    assert(schema.column_map.stock.fields.quantity);
-    assert(schema.column_map.stock.fields.warehouse);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 5);
+    assert(schema.fields.name);
+    assert(schema.fields.stock);
+    assert(schema.fields.stock.fields.quantity);
+    assert(schema.fields.stock.fields.warehouse);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -311,7 +311,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock;
+      const c = schema.fields.stock;
       assert.equal(c.name, 'stock');
       assert.equal(c.primitiveType, undefined);
       assert.equal(c.originalType, undefined);
@@ -326,7 +326,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.quantity;
+      const c = schema.fields.stock.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -341,7 +341,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.warehouse;
+      const c = schema.fields.stock.fields.warehouse;
       assert.equal(c.name, 'warehouse');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -356,7 +356,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);
@@ -384,15 +384,15 @@ describe('ParquetSchema', function() {
       price: { type: 'DOUBLE' },
     });
 
-    assert.equal(schema.columns.length, 5);
-    assert(schema.column_map.name);
-    assert(schema.column_map.stock);
-    assert(schema.column_map.stock.fields.quantity);
-    assert(schema.column_map.stock.fields.warehouse);
-    assert(schema.column_map.price);
+    assert.equal(schema.fieldList.length, 5);
+    assert(schema.fields.name);
+    assert(schema.fields.stock);
+    assert(schema.fields.stock.fields.quantity);
+    assert(schema.fields.stock.fields.warehouse);
+    assert(schema.fields.price);
 
     {
-      const c = schema.column_map.name;
+      const c = schema.fields.name;
       assert.equal(c.name, 'name');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -407,7 +407,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock;
+      const c = schema.fields.stock;
       assert.equal(c.name, 'stock');
       assert.equal(c.primitiveType, undefined);
       assert.equal(c.originalType, undefined);
@@ -422,7 +422,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.quantity;
+      const c = schema.fields.stock.fields.quantity;
       assert.equal(c.name, 'quantity');
       assert.equal(c.primitiveType, 'INT64');
       assert.equal(c.originalType, undefined);
@@ -437,7 +437,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.stock.fields.warehouse;
+      const c = schema.fields.stock.fields.warehouse;
       assert.equal(c.name, 'warehouse');
       assert.equal(c.primitiveType, 'BYTE_ARRAY');
       assert.equal(c.originalType, 'UTF8');
@@ -452,7 +452,7 @@ describe('ParquetSchema', function() {
     }
 
     {
-      const c = schema.column_map.price;
+      const c = schema.fields.price;
       assert.equal(c.name, 'price');
       assert.equal(c.primitiveType, 'DOUBLE');
       assert.equal(c.originalType, undefined);

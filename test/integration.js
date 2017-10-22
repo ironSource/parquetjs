@@ -69,7 +69,7 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.columns.length, 7);
+  assert.equal(schema.fieldList.length, 7);
   assert.equal(schema.schema['name'].type, 'UTF8');
   assert.equal(schema.schema['name'].optional, false);
   assert.equal(schema.schema['name'].repeated, false);
