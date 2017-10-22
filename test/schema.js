@@ -13,39 +13,49 @@ describe('ParquetSchema', function() {
     });
 
     assert.equal(schema.columns.length, 3);
-    assert.deepEqual(schema.columns[0], schema.column_map["name"]);
-    assert.deepEqual(schema.columns[1], schema.column_map["quantity"]);
-    assert.deepEqual(schema.columns[2], schema.column_map["price"]);
+    assert(schema.column_map['name']);
+    assert(schema.column_map['quantity']);
+    assert(schema.column_map['price']);
 
-    assert.equal(schema.columns[0].name,  'name');
-    assert.equal(schema.columns[0].primitiveType,  'BYTE_ARRAY');
-    assert.equal(schema.columns[0].originalType,  'UTF8');
-    assert.deepEqual(schema.columns[0].path,  ['name']);
-    assert.equal(schema.columns[0].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[0].encoding,  'PLAIN');
-    assert.equal(schema.columns[0].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[0].rLevelMax,  0);
-    assert.equal(schema.columns[0].dLevelMax,  0);
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
 
-    assert.equal(schema.columns[1].name,  'quantity');
-    assert.equal(schema.columns[1].primitiveType,  'INT64');
-    assert.equal(schema.columns[1].originalType,  undefined);
-    assert.deepEqual(schema.columns[1].path,  ['quantity']);
-    assert.equal(schema.columns[1].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[1].encoding,  'PLAIN');
-    assert.equal(schema.columns[1].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[1].rLevelMax,  0);
-    assert.equal(schema.columns[1].dLevelMax,  0);
+    {
+      const c = schema.column_map[['quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['quantity']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
 
-    assert.equal(schema.columns[2].name,  'price');
-    assert.equal(schema.columns[2].primitiveType,  'DOUBLE');
-    assert.equal(schema.columns[2].originalType,  undefined);
-    assert.deepEqual(schema.columns[2].path,  ['price']);
-    assert.equal(schema.columns[2].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[2].encoding,  'PLAIN');
-    assert.equal(schema.columns[2].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[2].rLevelMax,  0);
-    assert.equal(schema.columns[2].dLevelMax,  0);
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
   });
 
   it('should assign correct defaults in a flat schema with optional columns', function() {
@@ -56,39 +66,48 @@ describe('ParquetSchema', function() {
     });
 
     assert.equal(schema.columns.length, 3);
-    assert.deepEqual(schema.columns[0], schema.column_map["name"]);
-    assert.deepEqual(schema.columns[1], schema.column_map["quantity"]);
-    assert.deepEqual(schema.columns[2], schema.column_map["price"]);
+    assert(schema.column_map['name']);
+    assert(schema.column_map['quantity']);
+    assert(schema.column_map['price']);
 
-    assert.equal(schema.columns[0].name,  'name');
-    assert.equal(schema.columns[0].primitiveType,  'BYTE_ARRAY');
-    assert.equal(schema.columns[0].originalType,  'UTF8');
-    assert.deepEqual(schema.columns[0].path,  ['name']);
-    assert.equal(schema.columns[0].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[0].encoding,  'PLAIN');
-    assert.equal(schema.columns[0].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[0].rLevelMax,  0);
-    assert.equal(schema.columns[0].dLevelMax,  0);
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
 
-    assert.equal(schema.columns[1].name,  'quantity');
-    assert.equal(schema.columns[1].primitiveType,  'INT64');
-    assert.equal(schema.columns[1].originalType,  undefined);
-    assert.deepEqual(schema.columns[1].path,  ['quantity']);
-    assert.equal(schema.columns[1].repetitionType,  'OPTIONAL');
-    assert.equal(schema.columns[1].encoding,  'PLAIN');
-    assert.equal(schema.columns[1].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[1].rLevelMax,  0);
-    assert.equal(schema.columns[1].dLevelMax,  1);
+    {
+      const c = schema.column_map[['quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['quantity']);
+      assert.equal(c.repetitionType, 'OPTIONAL');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 1);
+    }
 
-    assert.equal(schema.columns[2].name,  'price');
-    assert.equal(schema.columns[2].primitiveType,  'DOUBLE');
-    assert.equal(schema.columns[2].originalType,  undefined);
-    assert.deepEqual(schema.columns[2].path,  ['price']);
-    assert.equal(schema.columns[2].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[2].encoding,  'PLAIN');
-    assert.equal(schema.columns[2].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[2].rLevelMax,  0);
-    assert.equal(schema.columns[2].dLevelMax,  0);
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
   });
 
   it('should assign correct defaults in a flat schema with repeated columns', function() {
@@ -99,39 +118,305 @@ describe('ParquetSchema', function() {
     });
 
     assert.equal(schema.columns.length, 3);
-    assert.deepEqual(schema.columns[0], schema.column_map["name"]);
-    assert.deepEqual(schema.columns[1], schema.column_map["quantity"]);
-    assert.deepEqual(schema.columns[2], schema.column_map["price"]);
+    assert(schema.column_map['name']);
+    assert(schema.column_map['quantity']);
+    assert(schema.column_map['price']);
 
-    assert.equal(schema.columns[0].name,  'name');
-    assert.equal(schema.columns[0].primitiveType,  'BYTE_ARRAY');
-    assert.equal(schema.columns[0].originalType,  'UTF8');
-    assert.deepEqual(schema.columns[0].path,  ['name']);
-    assert.equal(schema.columns[0].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[0].encoding,  'PLAIN');
-    assert.equal(schema.columns[0].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[0].rLevelMax,  0);
-    assert.equal(schema.columns[0].dLevelMax,  0);
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
 
-    assert.equal(schema.columns[1].name,  'quantity');
-    assert.equal(schema.columns[1].primitiveType,  'INT64');
-    assert.equal(schema.columns[1].originalType,  undefined);
-    assert.deepEqual(schema.columns[1].path,  ['quantity']);
-    assert.equal(schema.columns[1].repetitionType,  'REPEATED');
-    assert.equal(schema.columns[1].encoding,  'PLAIN');
-    assert.equal(schema.columns[1].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[1].rLevelMax,  1);
-    assert.equal(schema.columns[1].dLevelMax,  1);
+    {
+      const c = schema.column_map[['quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['quantity']);
+      assert.equal(c.repetitionType, 'REPEATED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 1);
+      assert.equal(c.dLevelMax, 1);
+    }
 
-    assert.equal(schema.columns[2].name,  'price');
-    assert.equal(schema.columns[2].primitiveType,  'DOUBLE');
-    assert.equal(schema.columns[2].originalType,  undefined);
-    assert.deepEqual(schema.columns[2].path,  ['price']);
-    assert.equal(schema.columns[2].repetitionType,  'REQUIRED');
-    assert.equal(schema.columns[2].encoding,  'PLAIN');
-    assert.equal(schema.columns[2].compression,  'UNCOMPRESSED');
-    assert.equal(schema.columns[2].rLevelMax,  0);
-    assert.equal(schema.columns[2].dLevelMax,  0);
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+  });
+
+  it('should assign correct defaults in a nested schema without repetition modifiers', function() {
+    var schema = new parquet.ParquetSchema({
+      name: { type: 'UTF8' },
+      stock: {
+        fields: {
+          quantity: { type: 'INT64' },
+          warehouse: { type: 'UTF8' },
+        }
+      },
+      price: { type: 'DOUBLE' },
+    });
+
+    assert.equal(schema.columns.length, 5);
+    assert(schema.column_map[['name']]);
+    assert(schema.column_map[['stock']]);
+    assert(schema.column_map[['stock', 'quantity']]);
+    assert(schema.column_map[['stock', 'warehouse']]);
+    assert(schema.column_map[['price']]);
+
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['stock']];
+      assert.equal(c.name, 'stock');
+      assert.equal(c.primitiveType, undefined);
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, undefined);
+      assert.equal(c.compression, undefined);
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock', 'quantity']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'warehouse']];
+      assert.equal(c.name, 'warehouse');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['stock', 'warehouse']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+  });
+
+  it('should assign correct defaults in a nested schema with optional fields', function() {
+    var schema = new parquet.ParquetSchema({
+      name: { type: 'UTF8' },
+      stock: {
+        optional: true,
+        fields: {
+          quantity: { type: 'INT64', optional: true },
+          warehouse: { type: 'UTF8' },
+        }
+      },
+      price: { type: 'DOUBLE' },
+    });
+
+    assert.equal(schema.columns.length, 5);
+    assert(schema.column_map[['name']]);
+    assert(schema.column_map[['stock']]);
+    assert(schema.column_map[['stock', 'quantity']]);
+    assert(schema.column_map[['stock', 'warehouse']]);
+    assert(schema.column_map[['price']]);
+
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['stock']];
+      assert.equal(c.name, 'stock');
+      assert.equal(c.primitiveType, undefined);
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock']);
+      assert.equal(c.repetitionType, 'OPTIONAL');
+      assert.equal(c.encoding, undefined);
+      assert.equal(c.compression, undefined);
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 1);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock', 'quantity']);
+      assert.equal(c.repetitionType, 'OPTIONAL');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 2);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'warehouse']];
+      assert.equal(c.name, 'warehouse');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['stock', 'warehouse']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 1);
+    }
+
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+  });
+
+  it('should assign correct defaults in a nested schema with repeated fields', function() {
+    var schema = new parquet.ParquetSchema({
+      name: { type: 'UTF8' },
+      stock: {
+        repeated: true,
+        fields: {
+          quantity: { type: 'INT64', optional: true },
+          warehouse: { type: 'UTF8' },
+        }
+      },
+      price: { type: 'DOUBLE' },
+    });
+
+    assert.equal(schema.columns.length, 5);
+    assert(schema.column_map[['name']]);
+    assert(schema.column_map[['stock']]);
+    assert(schema.column_map[['stock', 'quantity']]);
+    assert(schema.column_map[['stock', 'warehouse']]);
+    assert(schema.column_map[['price']]);
+
+    {
+      const c = schema.column_map[['name']];
+      assert.equal(c.name, 'name');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['name']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
+
+    {
+      const c = schema.column_map[['stock']];
+      assert.equal(c.name, 'stock');
+      assert.equal(c.primitiveType, undefined);
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock']);
+      assert.equal(c.repetitionType, 'REPEATED');
+      assert.equal(c.encoding, undefined);
+      assert.equal(c.compression, undefined);
+      assert.equal(c.rLevelMax, 1);
+      assert.equal(c.dLevelMax, 1);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'quantity']];
+      assert.equal(c.name, 'quantity');
+      assert.equal(c.primitiveType, 'INT64');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['stock', 'quantity']);
+      assert.equal(c.repetitionType, 'OPTIONAL');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 1);
+      assert.equal(c.dLevelMax, 2);
+    }
+
+    {
+      const c = schema.column_map[['stock', 'warehouse']];
+      assert.equal(c.name, 'warehouse');
+      assert.equal(c.primitiveType, 'BYTE_ARRAY');
+      assert.equal(c.originalType, 'UTF8');
+      assert.deepEqual(c.path, ['stock', 'warehouse']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 1);
+      assert.equal(c.dLevelMax, 1);
+    }
+
+    {
+      const c = schema.column_map[['price']];
+      assert.equal(c.name, 'price');
+      assert.equal(c.primitiveType, 'DOUBLE');
+      assert.equal(c.originalType, undefined);
+      assert.deepEqual(c.path, ['price']);
+      assert.equal(c.repetitionType, 'REQUIRED');
+      assert.equal(c.encoding, 'PLAIN');
+      assert.equal(c.compression, 'UNCOMPRESSED');
+      assert.equal(c.rLevelMax, 0);
+      assert.equal(c.dLevelMax, 0);
+    }
   });
 
 });
