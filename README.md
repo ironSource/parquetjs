@@ -8,7 +8,7 @@ fully asynchronous, pure JavaScript implementation of the Parquet file format
 
 
 #### update regarding pull requests
-Dear fellow developers, there will be a slight delay in merging your PRs since we need to sort out some legalities. We will start merging in about 2 weeks.
+_Dear fellow developers, there will be a slight delay in merging your PRs since we need to sort out some legalities. We will start merging in about 2 weeks._
 
 
 This package contains a fully asynchronous, pure JavaScript implementation of
