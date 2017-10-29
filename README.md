@@ -11,6 +11,9 @@ the [Parquet](https://parquet.apache.org/) file format. The implementation confo
 [Parquet specification](https://github.com/apache/parquet-format) and is tested
 for compatibility with Apache's Java [reference implementation](https://github.com/apache/parquet-mr).
 
+## update regarding pull requests
+Dear fellow developers, there will be a slight delay in merging your PRs since we need to sort out some legalities. We will start merging in about 2 weeks.
+
 **What is Parquet?**: Parquet is a column-oriented file format; it allows you to
 write a large amount of structured data to a file, compress it and then read parts
 of it back out efficiently. The Parquet format is based on [Google's Dremel paper](https://www.google.co.nz/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwj_tJelpv3UAhUCm5QKHfJODhUQFggsMAE&url=http%3A%2F%2Fwww.vldb.org%2Fpvldb%2Fvldb2010%2Fpapers%2FR29.pdf&usg=AFQjCNGyMk3_JltVZjMahP6LPmqMzYdCkw).
