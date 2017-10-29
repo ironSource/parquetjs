@@ -6,13 +6,15 @@ fully asynchronous, pure JavaScript implementation of the Parquet file format
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/parquetjs.svg)](https://badge.fury.io/js/parquetjs)
 
+
+#### update regarding pull requests
+Dear fellow developers, there will be a slight delay in merging your PRs since we need to sort out some legalities. We will start merging in about 2 weeks.
+
+
 This package contains a fully asynchronous, pure JavaScript implementation of
 the [Parquet](https://parquet.apache.org/) file format. The implementation conforms with the
 [Parquet specification](https://github.com/apache/parquet-format) and is tested
 for compatibility with Apache's Java [reference implementation](https://github.com/apache/parquet-mr).
-
-## update regarding pull requests
-Dear fellow developers, there will be a slight delay in merging your PRs since we need to sort out some legalities. We will start merging in about 2 weeks.
 
 **What is Parquet?**: Parquet is a column-oriented file format; it allows you to
 write a large amount of structured data to a file, compress it and then read parts
