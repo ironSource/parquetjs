@@ -71,19 +71,53 @@ them on disk.
 var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 
 // append a few rows to the file
-await writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-await writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+await writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: new Date(), in_stock: true});
+await writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: new Date(), in_stock: true});
 ```
 
 Once we are finished adding rows to the file, we have to tell the writer object
 to flush the metadata to disk and close the file by calling the `close()` method:
 
+
+Usage: Reading files
+--------------------
+
+A parquet reader allows retrieving the rows from a parquet file in order.
+The basic usage is to create a reader and then retrieve a cursor/iterator
+which allows you to consume row after row until all rows have been read.
+
+You may open more than one cursor and use them concurrently. All cursors become
+invalid once close() is called on
+the reader object.
+
 ``` js
-await writer.close();
+// create new ParquetReader that reads from 'fruits.parquet`
+let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+
+// create a new cursor
+let cursor = reader.getCursor();
+
+// read all records from the file and print them
+let record = null;
+while (record = await cursor.next()) {
+  console.log(record);
+}
 ```
 
-That is all! You should now have a `fruits.parquet` file containing your data. 
+When creating a cursor, you can optionally request that only a subset of the
+columns should be read from disk. For example:
 
+``` js
+// create a new cursor that will only return the `name` and `price` columns
+let cursor = reader.getCursor(['name', 'price']);
+```
+
+It is important that you call close() after you are finished reading the file to
+avoid leaking file descriptors.
+
+``` js
+await reader.close();
+```
 
 Encodings
 ---------
