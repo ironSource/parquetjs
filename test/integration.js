@@ -4,8 +4,8 @@ const assert = chai.assert;
 const parquet = require('../parquet.js');
 
 const TEST_NUM_ROWS = 10000;
+const TEST_VTIME =  new Date();
 
-// FIXME: tempdir?
 // write a new file 'fruits.parquet'
 async function writeTestFile(opts) {
   let schema = new parquet.ParquetSchema({
@@ -13,7 +13,13 @@ async function writeTestFile(opts) {
     quantity:   { type: 'INT64', optional: true },
     price:      { type: 'DOUBLE' },
     date:       { type: 'TIMESTAMP_MICROS' },
-    in_stock:   { type: 'BOOLEAN' },
+    stock: {
+      repeated: true,
+      fields: {
+        quantity: { type: 'INT64', repeated: true },
+        warehouse: { type: 'UTF8' },
+      }
+    },
     colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
     meta_json:  { type: 'BSON', optional: true  },
   });
@@ -27,8 +33,11 @@ async function writeTestFile(opts) {
       name: 'apples',
       quantity: 10,
       price: 2.6,
-      date: new Date(),
-      in_stock: true,
+      date: new Date(TEST_VTIME + 1000 * i),
+      stock: [
+        { quantity: 10, warehouse: "A" },
+        { quantity: 20, warehouse: "B" }
+      ],
       colour: [ 'green', 'red' ]
     });
 
@@ -36,25 +45,30 @@ async function writeTestFile(opts) {
       name: 'oranges',
       quantity: 20,
       price: 2.7,
-      date: new Date(),
-      in_stock: true,
+      date: new Date(TEST_VTIME + 2000 * i),
+      stock: {
+        quantity: [50, 75],
+        warehouse: "X"
+      },
       colour: [ 'orange' ]
     });
 
     await writer.appendRow({
       name: 'kiwi',
       price: 4.2,
-      date: new Date(),
-      in_stock: false,
+      date: new Date(TEST_VTIME + 8000 * i),
+      stock: [
+        { quantity: 420, warehouse: "f" },
+        { quantity: 20, warehouse: "x" }
+      ],
       colour: [ 'green', 'brown' ],
-      meta_json: { expected_ship_date: new Date() }
+      meta_json: { expected_ship_date: TEST_VTIME }
     });
 
     await writer.appendRow({
       name: 'banana',
       price: 3.2,
-      date: new Date(),
-      in_stock: false,
+      date: new Date(TEST_VTIME + 6000 * i),
       colour: [ 'yellow' ],
       meta_json: { shape: 'curved' }
     });
@@ -69,28 +83,137 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.fieldList.length, 7);
-  assert.equal(schema.schema['name'].type, 'UTF8');
-  assert.equal(schema.schema['name'].optional, false);
-  assert.equal(schema.schema['name'].repeated, false);
-  assert.equal(schema.schema['quantity'].type, 'INT64');
-  assert.equal(schema.schema['quantity'].optional, true);
-  assert.equal(schema.schema['quantity'].repeated, false);
-  assert.equal(schema.schema['price'].type, 'DOUBLE');
-  assert.equal(schema.schema['price'].optional, false);
-  assert.equal(schema.schema['price'].repeated, false);
-  assert.equal(schema.schema['date'].type, 'TIMESTAMP_MICROS');
-  assert.equal(schema.schema['date'].optional, false);
-  assert.equal(schema.schema['date'].repeated, false);
-  assert.equal(schema.schema['in_stock'].type, 'BOOLEAN');
-  assert.equal(schema.schema['in_stock'].optional, false);
-  assert.equal(schema.schema['in_stock'].repeated, false);
-  assert.equal(schema.schema['colour'].type, 'UTF8');
-  assert.equal(schema.schema['colour'].optional, false);
-  assert.equal(schema.schema['colour'].repeated, true);
-  assert.equal(schema.schema['meta_json'].type, 'BSON');
-  assert.equal(schema.schema['meta_json'].optional, true);
-  assert.equal(schema.schema['meta_json'].repeated, false);
+  assert.equal(schema.fieldList.length, 9);
+  assert(schema.fields.name);
+  assert(schema.fields.stock);
+  assert(schema.fields.stock.fields.quantity);
+  assert(schema.fields.stock.fields.warehouse);
+  assert(schema.fields.price);
+
+  {
+    const c = schema.fields.name;
+    assert.equal(c.name, 'name');
+    assert.equal(c.primitiveType, 'BYTE_ARRAY');
+    assert.equal(c.originalType, 'UTF8');
+    assert.deepEqual(c.path, ['name']);
+    assert.equal(c.repetitionType, 'REQUIRED');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 0);
+    assert.equal(c.dLevelMax, 0);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    const c = schema.fields.stock;
+    assert.equal(c.name, 'stock');
+    assert.equal(c.primitiveType, undefined);
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['stock']);
+    assert.equal(c.repetitionType, 'REPEATED');
+    assert.equal(c.encoding, undefined);
+    assert.equal(c.compression, undefined);
+    assert.equal(c.rLevelMax, 1);
+    assert.equal(c.dLevelMax, 1);
+    assert.equal(!!c.isNested, true);
+    assert.equal(c.fieldCount, 2);
+  }
+
+  {
+    const c = schema.fields.stock.fields.quantity;
+    assert.equal(c.name, 'quantity');
+    assert.equal(c.primitiveType, 'INT64');
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['stock', 'quantity']);
+    assert.equal(c.repetitionType, 'REPEATED');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 2);
+    assert.equal(c.dLevelMax, 2);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    const c = schema.fields.stock.fields.warehouse;
+    assert.equal(c.name, 'warehouse');
+    assert.equal(c.primitiveType, 'BYTE_ARRAY');
+    assert.equal(c.originalType, 'UTF8');
+    assert.deepEqual(c.path, ['stock', 'warehouse']);
+    assert.equal(c.repetitionType, 'REQUIRED');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 1);
+    assert.equal(c.dLevelMax, 1);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    const c = schema.fields.price;
+    assert.equal(c.name, 'price');
+    assert.equal(c.primitiveType, 'DOUBLE');
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['price']);
+    assert.equal(c.repetitionType, 'REQUIRED');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 0);
+    assert.equal(c.dLevelMax, 0);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    let cursor = reader.getCursor();
+    for (let i = 0; i < TEST_NUM_ROWS; ++i) {
+      assert.deepEqual(await cursor.next(), {
+        name: 'apples',
+        quantity: 10,
+        price: 2.6,
+        date: new Date(TEST_VTIME + 1000 * i),
+        stock: [
+          { quantity: [10], warehouse: "A" },
+          { quantity: [20], warehouse: "B" }
+        ],
+        colour: [ 'green', 'red' ]
+      });
+
+      assert.deepEqual(await cursor.next(), {
+        name: 'oranges',
+        quantity: 20,
+        price: 2.7,
+        date: new Date(TEST_VTIME + 2000 * i),
+        stock: [
+          { quantity: [50, 75], warehouse: "X" }
+        ],
+        colour: [ 'orange' ]
+      });
+
+      assert.deepEqual(await cursor.next(), {
+        name: 'kiwi',
+        price: 4.2,
+        date: new Date(TEST_VTIME + 8000 * i),
+        stock: [
+          { quantity: [420], warehouse: "f" },
+          { quantity: [20], warehouse: "x" }
+        ],
+        colour: [ 'green', 'brown' ],
+        meta_json: { expected_ship_date: TEST_VTIME }
+      });
+
+      assert.deepEqual(await cursor.next(), {
+        name: 'banana',
+        price: 3.2,
+        date: new Date(TEST_VTIME + 6000 * i),
+        colour: [ 'yellow' ],
+        meta_json: { shape: 'curved' }
+      });
+    }
+
+    assert.equal(await cursor.next(), null);
+  }
 
   {
     let cursor = reader.getCursor(['name']);
