@@ -215,6 +215,16 @@ await writer.appendRow({
     { price: 1.30, quantity: 230 }
   ]
 });
+
+// reading nested rows with a list of explicit columns
+let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+
+let cursor = reader.getCursor([['name'], ['stock', 'price']]);
+let record = null;
+while (record = await cursor.next()) {
+  console.log(record);
+}
+
 ```
 
 It might not be obvious why one would want to implement or use such a feature when
@@ -225,7 +235,7 @@ Putting aside the philosophical discussion on the merits of strict typing,
 knowing about the structure and subtypes of all records (globally) means we do not
 have to duplicate this metadata (i.e. the field names) for every record. On top
 of that, knowing about the type of a field allows us to compress the remaining
-data far more efficiently.
+data more efficiently.
 
 
 List of Supported Types & Encodings
