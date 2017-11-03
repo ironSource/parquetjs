@@ -47,6 +47,27 @@ async function example() {
   });
 
   await writer.close();
+
+  let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+
+  {
+    let cursor = reader.getCursor();
+    let record = null;
+    while (record = await cursor.next()) {
+      console.log(record);
+    }
+  }
+
+  {
+    let cursor = reader.getCursor([['name'], ['stock', 'warehouse']]);
+    let record = null;
+    while (record = await cursor.next()) {
+      console.log(record);
+    }
+  }
+
+  await reader.close();
+
 }
 
 example();

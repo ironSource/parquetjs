@@ -188,10 +188,10 @@ var schema = new parquet.ParquetSchema({
   colour: { type: 'UTF8', repeated: true },
   stock: {
     repeated: true,
-    fields: [
+    fields: {
       price: { type: 'DOUBLE' },
       quantity: { type: 'INT64' },
-    ]
+    }
   }
 });
 
@@ -216,6 +216,8 @@ await writer.appendRow({
   ]
 });
 
+await writer.close();
+
 // reading nested rows with a list of explicit columns
 let reader = await parquet.ParquetReader.openFile('fruits.parquet');
 
@@ -225,6 +227,7 @@ while (record = await cursor.next()) {
   console.log(record);
 }
 
+await reader.close();
 ```
 
 It might not be obvious why one would want to implement or use such a feature when
