@@ -53,7 +53,7 @@ var schema = new parquet.ParquetSchema({
   name: { type: 'UTF8' },
   quantity: { type: 'INT64' },
   price: { type: 'DOUBLE' },
-  date: { type: 'TIMESTAMP' },
+  date: { type: 'TIMESTAMP_MILLIS' },
   in_stock: { type: 'BOOLEAN' }
 });
 ```
@@ -68,18 +68,18 @@ them on disk.
 
 ``` js
 // create new ParquetWriter that writes to 'fruits.parquet`
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 
 // append a few rows to the file
-writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+await writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+await writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
 ```
 
 Once we are finished adding rows to the file, we have to tell the writer object
-to flush the metadata to disk and close the file by calling the `end()` method:
+to flush the metadata to disk and close the file by calling the `close()` method:
 
 ``` js
-writer.end();
+await writer.close();
 ```
 
 That is all! You should now have a `fruits.parquet` file containing your data. 
@@ -130,9 +130,9 @@ var schema = new parquet.ParquetSchema({
   quantity: { type: 'INT64', optional: true },
 });
 
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
-writer.appendRow({name: 'apples', quantity: 10 });
-writer.appendRow({name: 'banana' }); // not in stock
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
+await writer.appendRow({name: 'apples', quantity: 10 });
+await writer.appendRow({name: 'banana' }); // not in stock
 ```
 
 
@@ -162,9 +162,9 @@ var schema = new parquet.ParquetSchema({
 });
 
 // the above schema allows us to store the following rows:
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 
-writer.appendRow({
+await writer.appendRow({
   name: 'banana',
   colours: ['yellow'],
   stock: [
@@ -173,7 +173,7 @@ writer.appendRow({
   ]
 });
 
-writer.appendRow({
+await writer.appendRow({
   name: 'apple',
   colours: ['red', 'green'],
   stock: [
@@ -232,7 +232,7 @@ Buffering & Row Group Size
 --------------------------
 
 When writing a Parquet file, the `ParquetWriter` will buffer rows in memory
-until a row group is complete (or `end()` is called) and then write out the row
+until a row group is complete (or `close()` is called) and then write out the row
 group to disk.
 
 The size of a row group is configurable by the user and controls the maximum
@@ -240,7 +240,7 @@ number of rows that are buffered in memory at any given time as well as the numb
 of rows that are co-located on disk:
 
 ``` js
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 writer.setRowGroupSize(8192);
 ```
 
