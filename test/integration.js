@@ -9,19 +9,19 @@ const TEST_VTIME =  new Date();
 // write a new file 'fruits.parquet'
 async function writeTestFile(opts) {
   let schema = new parquet.ParquetSchema({
-    name:       { type: 'UTF8' },
-    quantity:   { type: 'INT64', optional: true },
-    price:      { type: 'DOUBLE' },
-    date:       { type: 'TIMESTAMP_MICROS' },
+    name:       { type: 'UTF8', compression: opts.compression },
+    quantity:   { type: 'INT64', optional: true, compression: opts.compression },
+    price:      { type: 'DOUBLE', compression: opts.compression },
+    date:       { type: 'TIMESTAMP_MICROS', compression: opts.compression },
     stock: {
       repeated: true,
       fields: {
         quantity: { type: 'INT64', repeated: true },
-        warehouse: { type: 'UTF8' },
+        warehouse: { type: 'UTF8', compression: opts.compression },
       }
     },
     colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
-    meta_json:  { type: 'BSON', optional: true  },
+    meta_json:  { type: 'BSON', optional: true, compression: opts.compression  },
   });
 
   let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
@@ -273,19 +273,39 @@ describe('Parquet', function() {
       return writeTestFile(opts);
     });
 
+    it('write a test file with GZIP compression and then read it back', function() {
+      const opts = { useDataPageV2: true, compression: 'GZIP' };
+      return writeTestFile(opts).then(readTestFile);
+    });
+
     it('write a test file with SNAPPY compression', function() {
       const opts = { useDataPageV2: true, compression: 'SNAPPY' };
       return writeTestFile(opts);
     });
 
-    it('write a test file with LZO compression', function() {
-      const opts = { useDataPageV2: true, compression: 'LZO' };
-      return writeTestFile(opts);
+    it('write a test file with SNAPPY compression and then read it back', function() {
+      const opts = { useDataPageV2: true, compression: 'SNAPPY' };
+      return writeTestFile(opts).then(readTestFile);
     });
+
+    //it('write a test file with LZO compression', function() {
+    //  const opts = { useDataPageV2: true, compression: 'LZO' };
+    //  return writeTestFile(opts);
+    //});
+
+    //it('write a test file with LZO compression and then read it back', function() {
+    //  const opts = { useDataPageV2: true, compression: 'LZO' };
+    //  return writeTestFile(opts).then(readTestFile);
+    //});
 
     it('write a test file with BROTLI compression', function() {
       const opts = { useDataPageV2: true, compression: 'BROTLI' };
       return writeTestFile(opts);
+    });
+
+    it('write a test file with BROTLI compression and then read it back', function() {
+      const opts = { useDataPageV2: true, compression: 'BROTLI' };
+      return writeTestFile(opts).then(readTestFile);
     });
   });
 
