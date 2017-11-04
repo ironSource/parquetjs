@@ -263,6 +263,11 @@ describe('Parquet', function() {
       return writeTestFile(opts);
     });
 
+    it('write a test file and then read it back', function() {
+      const opts = { useDataPageV2: true, compression: 'UNCOMPRESSED' };
+      return writeTestFile(opts).then(readTestFile);
+    });
+
     it('write a test file with GZIP compression', function() {
       const opts = { useDataPageV2: true, compression: 'GZIP' };
       return writeTestFile(opts);
