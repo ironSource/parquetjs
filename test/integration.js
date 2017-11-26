@@ -10,6 +10,7 @@ const TEST_VTIME =  new Date();
 async function writeTestFile(opts) {
   let schema = new parquet.ParquetSchema({
     name:       { type: 'UTF8', compression: opts.compression },
+    //quantity:   { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
     quantity:   { type: 'INT64', optional: true, compression: opts.compression },
     price:      { type: 'DOUBLE', compression: opts.compression },
     date:       { type: 'TIMESTAMP_MICROS', compression: opts.compression },
@@ -56,7 +57,7 @@ async function writeTestFile(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: {
-        quantity: [50, 75],
+        quantity: [50, 33],
         warehouse: "X"
       },
       colour: [ 'orange' ]
@@ -70,7 +71,7 @@ async function writeTestFile(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
-        { quantity: 420, warehouse: "f" },
+        { quantity: 42, warehouse: "f" },
         { quantity: 20, warehouse: "x" }
       ],
       colour: [ 'green', 'brown' ],
@@ -207,7 +208,7 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [50, 75], warehouse: "X" }
+          { quantity: [50, 33], warehouse: "X" }
         ],
         colour: [ 'orange' ]
       });
@@ -220,7 +221,7 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [420], warehouse: "f" },
+          { quantity: [42], warehouse: "f" },
           { quantity: [20], warehouse: "x" }
         ],
         colour: [ 'green', 'brown' ],
@@ -315,15 +316,15 @@ describe('Parquet', function() {
       return writeTestFile(opts).then(readTestFile);
     });
 
-    //it('write a test file with LZO compression', function() {
-    //  const opts = { useDataPageV2: true, compression: 'LZO' };
-    //  return writeTestFile(opts);
-    //});
+    // it('write a test file with LZO compression', function() {
+    //   const opts = { useDataPageV2: true, compression: 'LZO' };
+    //   return writeTestFile(opts);
+    // });
 
-    //it('write a test file with LZO compression and then read it back', function() {
-    //  const opts = { useDataPageV2: true, compression: 'LZO' };
-    //  return writeTestFile(opts).then(readTestFile);
-    //});
+    // it('write a test file with LZO compression and then read it back', function() {
+    //   const opts = { useDataPageV2: true, compression: 'LZO' };
+    //   return writeTestFile(opts).then(readTestFile);
+    // });
 
     it('write a test file with BROTLI compression', function() {
       const opts = { useDataPageV2: true, compression: 'BROTLI' };
@@ -334,6 +335,7 @@ describe('Parquet', function() {
       const opts = { useDataPageV2: true, compression: 'BROTLI' };
       return writeTestFile(opts).then(readTestFile);
     });
+
   });
 
 });
