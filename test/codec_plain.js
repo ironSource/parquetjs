@@ -235,4 +235,39 @@ describe('ParquetCodec::PLAIN', function() {
     ]);
   });
 
+  it('should encode FIXED_LEN_BYTE_ARRAY values', function() {
+    let buf = parquet_codec_plain.encodeValues(
+        'FIXED_LEN_BYTE_ARRAY',
+        ['oneoo', new Buffer([0xde, 0xad, 0xbe, 0xef, 0x42]), 'three'], {
+          typeLength: 5
+        });
+
+    assert.deepEqual(buf, new Buffer([
+      0x6f, 0x6e, 0x65, 0x6f, 0x6f, // 'oneoo'
+      0xde, 0xad, 0xbe, 0xef, 0x42, // 0xdeadbeef42
+      0x74, 0x68, 0x72, 0x65, 0x65  // 'three'
+    ]));
+  });
+
+  it('should decode FIXED_LEN_BYTE_ARRAY values', function() {
+    let buf = {
+      offset: 0,
+      buffer: new Buffer([
+        0x6f, 0x6e, 0x65, 0x6f, 0x6f, // 'oneoo'
+        0xde, 0xad, 0xbe, 0xef, 0x42, // 0xdeadbeef42
+        0x74, 0x68, 0x72, 0x65, 0x65  // 'three'
+      ])
+    };
+
+    let vals = parquet_codec_plain.decodeValues('FIXED_LEN_BYTE_ARRAY', buf, 3, {
+      typeLength: 5
+    });
+
+    assert.equal(buf.offset, 15);
+    assert.deepEqual(vals, [
+      Buffer.from('oneoo'),
+      new Buffer([0xde, 0xad, 0xbe, 0xef, 0x42]),
+      Buffer.from('three')
+    ]);
+  });
 });

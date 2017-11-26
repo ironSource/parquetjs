@@ -13,6 +13,9 @@ async function writeTestFile(opts) {
     quantity:   { type: 'INT64', optional: true, compression: opts.compression },
     price:      { type: 'DOUBLE', compression: opts.compression },
     date:       { type: 'TIMESTAMP_MICROS', compression: opts.compression },
+    day:        { type: 'DATE', compression: opts.compression },
+    finger:     { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
+    inter:      { type: 'INTERVAL', compression: opts.compression },
     stock: {
       repeated: true,
       fields: {
@@ -33,7 +36,10 @@ async function writeTestFile(opts) {
       name: 'apples',
       quantity: 10,
       price: 2.6,
+      day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 1000 * i),
+      finger: "FNORD",
+      inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
         { quantity: 10, warehouse: "A" },
         { quantity: 20, warehouse: "B" }
@@ -45,7 +51,10 @@ async function writeTestFile(opts) {
       name: 'oranges',
       quantity: 20,
       price: 2.7,
+      day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 2000 * i),
+      finger: "FNORD",
+      inter: { months: 42, days: 23, milliseconds: 777 },
       stock: {
         quantity: [50, 75],
         warehouse: "X"
@@ -56,7 +65,10 @@ async function writeTestFile(opts) {
     await writer.appendRow({
       name: 'kiwi',
       price: 4.2,
+      day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 8000 * i),
+      finger: "FNORD",
+      inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
         { quantity: 420, warehouse: "f" },
         { quantity: 20, warehouse: "x" }
@@ -68,7 +80,10 @@ async function writeTestFile(opts) {
     await writer.appendRow({
       name: 'banana',
       price: 3.2,
+      day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 6000 * i),
+      finger: "FNORD",
+      inter: { months: 42, days: 23, milliseconds: 777 },
       colour: [ 'yellow' ],
       meta_json: { shape: 'curved' }
     });
@@ -83,7 +98,7 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.fieldList.length, 9);
+  assert.equal(schema.fieldList.length, 12);
   assert(schema.fields.name);
   assert(schema.fields.stock);
   assert(schema.fields.stock.fields.quantity);
@@ -172,7 +187,10 @@ async function readTestFile() {
         name: 'apples',
         quantity: 10,
         price: 2.6,
+        day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 1000 * i),
+        finger: Buffer.from("FNORD"),
+        inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
           { quantity: [10], warehouse: "A" },
           { quantity: [20], warehouse: "B" }
@@ -184,7 +202,10 @@ async function readTestFile() {
         name: 'oranges',
         quantity: 20,
         price: 2.7,
+        day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 2000 * i),
+        finger: Buffer.from("FNORD"),
+        inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
           { quantity: [50, 75], warehouse: "X" }
         ],
@@ -194,7 +215,10 @@ async function readTestFile() {
       assert.deepEqual(await cursor.next(), {
         name: 'kiwi',
         price: 4.2,
+        day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 8000 * i),
+        finger: Buffer.from("FNORD"),
+        inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
           { quantity: [420], warehouse: "f" },
           { quantity: [20], warehouse: "x" }
@@ -206,7 +230,10 @@ async function readTestFile() {
       assert.deepEqual(await cursor.next(), {
         name: 'banana',
         price: 3.2,
+        day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 6000 * i),
+        finger: Buffer.from("FNORD"),
+        inter: { months: 42, days: 23, milliseconds: 777 },
         colour: [ 'yellow' ],
         meta_json: { shape: 'curved' }
       });
