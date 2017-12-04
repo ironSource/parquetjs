@@ -1,14 +1,16 @@
 'use strict';
 const chai = require('chai');
+const fs = require('fs');
+const os = require('os');
 const assert = chai.assert;
 const parquet = require('../parquet.js');
+const objectStream = require('object-stream');
 
 const TEST_NUM_ROWS = 10000;
 const TEST_VTIME =  new Date();
 
-// write a new file 'fruits.parquet'
-async function writeTestFile(opts) {
-  let schema = new parquet.ParquetSchema({
+function mkTestSchema(opts) {
+  return new parquet.ParquetSchema({
     name:       { type: 'UTF8', compression: opts.compression },
     //quantity:   { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
     quantity:   { type: 'INT64', optional: true, compression: opts.compression },
@@ -27,13 +29,13 @@ async function writeTestFile(opts) {
     colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
     meta_json:  { type: 'BSON', optional: true, compression: opts.compression  },
   });
+};
 
-  let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
-  writer.setMetadata("myuid", "420");
-  writer.setMetadata("fnord", "dronf");
+function mkTestRows(opts) {
+  let rows = [];
 
   for (let i = 0; i < TEST_NUM_ROWS; ++i) {
-    await writer.appendRow({
+    rows.push({
       name: 'apples',
       quantity: 10,
       price: 2.6,
@@ -48,7 +50,7 @@ async function writeTestFile(opts) {
       colour: [ 'green', 'red' ]
     });
 
-    await writer.appendRow({
+    rows.push({
       name: 'oranges',
       quantity: 20,
       price: 2.7,
@@ -63,7 +65,7 @@ async function writeTestFile(opts) {
       colour: [ 'orange' ]
     });
 
-    await writer.appendRow({
+    rows.push({
       name: 'kiwi',
       price: 4.2,
       day: new Date('2017-11-26'),
@@ -78,7 +80,7 @@ async function writeTestFile(opts) {
       meta_json: { expected_ship_date: TEST_VTIME }
     });
 
-    await writer.appendRow({
+    rows.push({
       name: 'banana',
       price: 3.2,
       day: new Date('2017-11-26'),
@@ -88,6 +90,22 @@ async function writeTestFile(opts) {
       colour: [ 'yellow' ],
       meta_json: { shape: 'curved' }
     });
+  }
+
+  return rows;
+}
+
+async function writeTestFile(opts) {
+  let schema = mkTestSchema(opts);
+
+  let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
+  writer.setMetadata("myuid", "420");
+  writer.setMetadata("fnord", "dronf");
+
+  let rows = mkTestRows(opts);
+
+  for (let row of rows) {
+    await writer.appendRow(row);
   }
 
   await writer.close();
@@ -338,4 +356,21 @@ describe('Parquet', function() {
 
   });
 
+  describe('using the Stream/Transform API', function() {
+
+    it('write a test file', async function() {
+      const opts = { useDataPageV2: true, compression: 'GZIP' };
+      let schema = mkTestSchema(opts);
+      let transform = new parquet.ParquetTransformer(schema, opts);
+      transform.writer.setMetadata("myuid", "420");
+      transform.writer.setMetadata("fnord", "dronf");
+
+      var ostream = fs.createWriteStream('fruits_stream.parquet');
+      let istream = objectStream.fromArray(mkTestRows());
+      istream.pipe(transform).pipe(ostream);
+    });
+
+  });
+
 });
+
