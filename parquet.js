@@ -8,6 +8,7 @@ module.exports = {
   ParquetReader: reader.ParquetReader,
   ParquetEnvelopeWriter: writer.ParquetEnvelopeWriter,
   ParquetWriter: writer.ParquetWriter,
+  ParquetTransformer: writer.ParquetTransformer,
   ParquetSchema: schema.ParquetSchema,
   ParquetShredder: shredder
 };
