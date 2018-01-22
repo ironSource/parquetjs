@@ -114,6 +114,39 @@ avoid leaking file descriptors.
 await reader.close();
 ```
 
+### Reading data from a url
+
+Parquet files can be read from a url without having to download the whole file.
+You will have to supply the request library as a first argument and the request parameters
+as a second argument to the function `parquetReader.openUrl`.
+
+``` js
+const request = require('request');
+let reader = await parquet.ParquetReader.openUrl(request,'https://domain/fruits.parquet');
+```
+
+### Reading data from S3
+
+Parquet files can be read from an S3 object without having to download the whole file.
+You will have to supply the aws-sdk client as first argument and the bucket/key information 
+as second argument to the function `parquetReader.openS3`.
+
+``` js
+const AWS = require('aws-sdk');
+const client = new AWS.S3({
+  accessKeyId: 'xxxxxxxxxxx',
+  secretAccessKey: 'xxxxxxxxxxx'
+});
+
+const params = {
+  Bucket: 'xxxxxxxxxxx',
+  Key: 'xxxxxxxxxxx'
+};
+
+let reader = await parquet.ParquetReader.openS3(client,params);
+```
+
+
 Encodings
 ---------
 
