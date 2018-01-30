@@ -68,6 +68,7 @@ function mkTestRows(opts) {
     rows.push({
       name: 'kiwi',
       price: 4.2,
+      quantity: undefined,
       day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 8000 * i),
       finger: "FNORD",
