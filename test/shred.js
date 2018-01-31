@@ -505,4 +505,52 @@ describe('ParquetShredder', function() {
         { name: "banana", stock: [{ warehouse: "C" }], price: 42.0 });
   });
 
+  it('should materialize a static nested record with blank optional value', function() {
+    var schema = new parquet.ParquetSchema({
+      fruit: {
+        fields: {
+          name: { type: 'UTF8' },
+          colour: { type: 'UTF8', optional: true }
+        }
+      }
+    });
+
+    let buffer = {
+      rowCount: 1,
+      columnData: {}
+    };
+
+    buffer.columnData['fruit'] = {
+      dlevels: [],
+      rlevels: [],
+      values: [],
+      count: 0
+    };
+    
+    buffer.columnData['fruit,name'] = {
+      dlevels: [0],
+      rlevels: [0],
+      values: [
+        new Buffer([97, 112, 112, 108, 101])
+      ],
+      count: 1
+    };
+
+    buffer.columnData['fruit,colour'] = {
+      dlevels: [0],
+      rlevels: [0],
+      values: [],
+      count: 1
+    };
+    
+    let records = parquet.ParquetShredder.materializeRecords(schema, buffer);
+
+    assert.equal(records.length, 1);
+
+    assert.deepEqual(
+        records[0],
+        { fruit: { name: "apple" } });
+
+  });
+
 });
