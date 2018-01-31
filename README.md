@@ -146,6 +146,14 @@ const params = {
 let reader = await parquet.ParquetReader.openS3(client,params);
 ```
 
+### Reading data from a buffer
+
+If the complete parquet file is in buffer it can be read directly from memory without incurring any additional I/O.
+
+``` js
+const file = fs.readFileSync('fruits.parquet');
+let reader = await parquet.ParquetReader.openBuffer(file);
+```
 
 Encodings
 ---------
