@@ -371,6 +371,32 @@ describe('Parquet', function() {
       istream.pipe(transform).pipe(ostream);
     });
 
+    it('an error in transform is emitted in stream', async function() {
+      const opts = { useDataPageV2: true, compression: 'GZIP' };
+      let schema = mkTestSchema(opts);
+      let transform = new parquet.ParquetTransformer(schema, opts);
+      transform.writer.setMetadata("myuid", "420");
+      transform.writer.setMetadata("fnord", "dronf");
+
+      var ostream = fs.createWriteStream('fruits_stream.parquet');
+      let testRows = mkTestRows();
+      testRows[4].quantity = 'N/A';
+      let istream = objectStream.fromArray(testRows);
+      return new Promise( (resolve, reject) => {
+        setTimeout(() => resolve('no_error'),1000);
+        istream
+          .pipe(transform)
+          .on('error', reject)
+          .pipe(ostream)
+          .on('finish',resolve);
+      })
+      .then(
+        () => { throw new Error('Should emit error'); },
+        () => undefined
+      );
+      
+    });
+
   });
 
 });
