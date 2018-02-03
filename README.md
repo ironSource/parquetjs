@@ -293,6 +293,10 @@ Depdendencies
 Parquet uses [thrift](https://thrift.apache.org/) to encode the schema and other
 metadata, but the actual data does not use thrift.
 
+Contributions
+-------------
+Please make sure you sign the [contributor license agreement](https://github.com/ironSource/cla) in order for us to be able to accept your contribution. We thank you very much!
+
 
 License
 -------
