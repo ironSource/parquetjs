@@ -180,7 +180,7 @@ where each row contains a name, a list of colours and a list of "stock" objects.
 // advanced fruits table
 var schema = new parquet.ParquetSchema({
   name: { type: 'UTF8' },
-  colour: { type: 'UTF8', repeated: true },
+  colours: { type: 'UTF8', repeated: true },
   stock: {
     repeated: true,
     fields: {
