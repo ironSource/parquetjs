@@ -26,6 +26,8 @@ const schema = new parquet.ParquetSchema({
 
 
 describe('statistics', async function() {
+  let row, reader;
+
   before(async function(){
     let writer = await parquet.ParquetWriter.openFile(schema, 'fruits-statistics.parquet', {pageSize: 3});
     
@@ -87,11 +89,12 @@ describe('statistics', async function() {
     });
 
     await writer.close();
+    reader = await parquet.ParquetReader.openFile('fruits-statistics.parquet');
+    row = reader.metadata.row_groups[0];
   });
 
   it('column statistics should match input', async function() {
-    let reader = await parquet.ParquetReader.openFile('fruits-statistics.parquet');
-    const row = reader.metadata.row_groups[0];
+    
     const rowStats = (path) => row.columns.find(d => d.meta_data.path_in_schema.join(',') == path).meta_data.statistics;
 
     assert.equal(rowStats('name').min_value,'apples');
@@ -136,5 +139,76 @@ describe('statistics', async function() {
 
     assert.equal(rowStats('inter'), null);
     assert.equal(rowStats('meta_json'), null);
+  });
+
+  it('columnIndex statistics should match input', async function() {
+
+    /*  we split the data into pages by 3, so we should have page 1 with 3 recs and page 2 with 1 */
+
+    const name = await reader.envelopeReader.readColumnIndex('name', row);
+    assert.deepEqual(name.min_values, ['apples','banana']);
+    assert.deepEqual(name.max_values, ['oranges','banana']);
+
+    const quantity = await reader.envelopeReader.readColumnIndex('quantity', row);
+    assert.deepEqual(quantity.min_values, [10, undefined]);
+    assert.deepEqual(quantity.max_values, [20, undefined]);
+
+    const price = await reader.envelopeReader.readColumnIndex('price', row);
+    assert.deepEqual(price.min_values, [2.6, 3.2]);
+    assert.deepEqual(price.max_values, [4.2, 3.2]);
+
+    const day = await reader.envelopeReader.readColumnIndex('day', row);
+    assert.deepEqual(day.min_values, [ new Date('2008-11-26'), new Date('2017-11-26') ]);
+    assert.deepEqual(day.max_values, [ new Date('2018-03-03'), new Date('2017-11-26') ]);
+
+    const finger = await reader.envelopeReader.readColumnIndex('finger', row);
+    assert.deepEqual(finger.min_values, [ 'ABCDE', 'FNORD' ]);
+    assert.deepEqual(finger.max_values, [ 'XCVBN', 'FNORD' ]);
+
+    const stockQuantity = await reader.envelopeReader.readColumnIndex('stock,quantity', row);
+    assert.deepEqual(stockQuantity.min_values, [ 10, undefined ]);
+    assert.deepEqual(stockQuantity.max_values, [ 50, undefined ]);
+
+    const stockWarehouse = await reader.envelopeReader.readColumnIndex('stock,warehouse', row);
+    assert.deepEqual(stockWarehouse.min_values, [ 'A', undefined ]);
+    assert.deepEqual(stockWarehouse.max_values, [ 'x', undefined ]);
+
+    const colour = await reader.envelopeReader.readColumnIndex('colour', row);
+    assert.deepEqual(colour.min_values, [ 'brown', 'yellow' ]);
+    assert.deepEqual(colour.max_values, [ 'yellow', 'yellow' ]);
+    
+    const inter = await reader.envelopeReader.readColumnIndex('inter', row).catch(e => e);
+    assert.equal(inter.message,'No Column Index');
+
+    const meta_json = await reader.envelopeReader.readColumnIndex('meta_json', row).catch(e => e);
+    assert.equal(meta_json.message,'No Column Index');
+  });
+
+  it('Setting pageIndex: false results in no column_index and no offset_index', async function() {
+    let writer = await parquet.ParquetWriter.openFile(schema, 'fruits-no-index.parquet', {pageSize: 3, pageIndex: false});
+    writer.appendRow({
+      name: 'apples',
+      quantity: 10,
+      price: 2.6,
+      day: new Date('2017-11-26'),
+      date: new Date(TEST_VTIME + 1000),
+      finger: "FNORD",
+      inter: { months: 10, days: 5, milliseconds: 777 },
+      stock: [
+        { quantity: 10, warehouse: "A" },
+        { quantity: 20, warehouse: "B" }
+      ],
+      colour: [ 'green', 'red' ],
+      meta_json: { expected_ship_date: TEST_VTIME }
+    });
+    await writer.close();
+
+    let reader2 = await parquet.ParquetReader.openFile('fruits-no-index.parquet');
+    reader2.metadata.row_groups[0].columns.forEach(column => {
+      assert.equal(column.offset_index_offset, null);
+      assert.equal(column.offset_index_length, null);
+      assert.equal(column.column_index_offset, null);
+      assert.equal(column.column_index_length, null);
+    });
   });
 });
