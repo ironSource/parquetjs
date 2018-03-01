@@ -33,6 +33,36 @@ describe('ParquetCodec::RLE', function() {
     assert.deepEqual(vals, [0, 1, 2, 3, 4, 5, 6, 7]);
   });
 
+  describe('number of values not a multiple of 8', function() {
+    it('should encode bitpacked values', function() {
+      let buf = parquet_codec_rle.encodeValues(
+          'INT32',
+          [0, 1, 2, 3, 4, 5, 6, 7, 6, 5],
+          {
+            disableEnvelope: true,
+            bitWidth: 3
+          });
+
+      assert.deepEqual(buf, new Buffer([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]));
+    });
+
+    it('should decode bitpacked values', function() {
+      let vals = parquet_codec_rle.decodeValues(
+          'INT32',
+          {
+            buffer: new Buffer([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]),
+            offset: 0,
+          },
+          10,
+          {
+            disableEnvelope: true,
+            bitWidth: 3
+          });
+
+      assert.deepEqual(vals, [0, 1, 2, 3, 4, 5, 6, 7, 6, 5]);
+    });
+  });
+
   it('should encode repeated values', function() {
     let buf = parquet_codec_rle.encodeValues(
         'INT32',
