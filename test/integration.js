@@ -151,6 +151,25 @@ async function verifyPages() {
   assert.equal(rowCount, column.column.meta_data.num_values);
 }
 
+async function verifyStatistics() {
+  const column = await sampleColumnHeaders();
+  const colStats = column.column.meta_data.statistics;
+
+  assert.equal(colStats.max_value, 'oranges');
+  assert.equal(colStats.min_value, 'apples');
+  assert.equal(colStats.null_count, 0);
+  assert.equal(colStats.distinct_count, 4);
+
+  column.pages.forEach( (d, i) => {
+    let header = d.data_page_header || d.data_page_header_v2;
+    let pageStats = header.statistics;
+    assert.equal(pageStats.null_count,0);
+    assert.equal(pageStats.distinct_count, 4);
+    assert.equal(pageStats.max_value, 'oranges');
+    assert.equal(pageStats.min_value, 'apples');
+  });
+}
+
 async function readTestFile() {
   let reader = await parquet.ParquetReader.openFile('fruits.parquet');
   assert.equal(reader.getRowCount(), TEST_NUM_ROWS * 4);
@@ -345,6 +364,10 @@ describe('Parquet', function() {
     it('verify that data is split into pages', function() {
       return verifyPages();
     });
+
+    it('verify statistics', function() {
+      return verifyStatistics();
+    });
   });
 
   describe('with DataPageHeaderV2', function() {
@@ -360,6 +383,10 @@ describe('Parquet', function() {
 
     it('verify that data is split into pages', function() {
       return verifyPages();
+    });
+
+    it('verify statistics', function() {
+      return verifyStatistics();
     });
 
     it('write a test file with GZIP compression', function() {
