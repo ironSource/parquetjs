@@ -108,6 +108,7 @@ describe('ParquetSchema', function() {
           "a"
         ],
         "repetitionType": "REQUIRED",
+        "statistics": undefined,
         "rLevelMax": 0,
         "dLevelMax": 0,
         "isNested": true,
@@ -120,6 +121,7 @@ describe('ParquetSchema', function() {
               "b"
             ],
             "repetitionType": "REQUIRED",
+            "statistics": undefined,
             "rLevelMax": 0,
             "dLevelMax": 0,
             "isNested": true,
@@ -133,6 +135,7 @@ describe('ParquetSchema', function() {
                   "c"
                 ],
                 "repetitionType": "REQUIRED",
+                "statistics": undefined,
                 "rLevelMax": 0,
                 "dLevelMax": 0,
                 "isNested": true,
@@ -149,6 +152,7 @@ describe('ParquetSchema', function() {
                       "d"
                     ],
                     "repetitionType": "REQUIRED",
+                    "statistics": undefined,
                     "typeLength": undefined,
                     "encoding": "PLAIN",
                     "compression": "UNCOMPRESSED",
@@ -165,6 +169,7 @@ describe('ParquetSchema', function() {
                   "e"
                 ],
                 "repetitionType": "REQUIRED",
+                "statistics": undefined,
                 "rLevelMax": 0,
                 "dLevelMax": 0,
                 "isNested": true,
@@ -181,6 +186,7 @@ describe('ParquetSchema', function() {
                       "f"
                     ],
                     "repetitionType": "REQUIRED",
+                    "statistics": undefined,
                     "typeLength": undefined,
                     "encoding": "PLAIN",
                     "compression": "UNCOMPRESSED",
@@ -198,6 +204,7 @@ describe('ParquetSchema', function() {
                       "g"
                     ],
                     "repetitionType": "REQUIRED",
+                    "statistics": undefined,
                     "typeLength": undefined,
                     "encoding": "PLAIN",
                     "compression": "UNCOMPRESSED",
@@ -217,6 +224,7 @@ describe('ParquetSchema', function() {
               "h"
             ],
             "repetitionType": "REQUIRED",
+            "statistics": undefined,
             "typeLength": undefined,
             "encoding": "PLAIN",
             "compression": "UNCOMPRESSED",
