@@ -178,10 +178,10 @@ describe('statistics', async function() {
     assert.deepEqual(colour.max_values, [ 'yellow', 'yellow' ]);
     
     const inter = await reader.envelopeReader.readColumnIndex('inter', row).catch(e => e);
-    assert.equal(inter.message,'No Column Index');
+    assert.equal(inter.message,'Column Index Missing');
 
     const meta_json = await reader.envelopeReader.readColumnIndex('meta_json', row).catch(e => e);
-    assert.equal(meta_json.message,'No Column Index');
+    assert.equal(meta_json.message,'Column Index Missing');
   });
 
   it('Setting pageIndex: false results in no column_index and no offset_index', async function() {
