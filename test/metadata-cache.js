@@ -4,7 +4,7 @@ const assert = chai.assert;
 const path = require('path');
 const parquet = require('../parquet.js');
 
-describe('test-files', function() {  
+describe('metadata-cache', function() {  
   let metadata;
 
   before(async function() {
