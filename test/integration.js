@@ -7,6 +7,7 @@ const parquet = require('../parquet.js');
 const parquet_thrift = require('../gen-nodejs/parquet_types');
 const parquet_util = require('../lib/util');
 const objectStream = require('object-stream');
+const stream = require('stream')
 
 const TEST_NUM_ROWS = 10000;
 const TEST_VTIME =  new Date();
@@ -102,6 +103,28 @@ async function writeTestFile(opts) {
   let schema = mkTestSchema(opts);
 
   let writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet', opts);
+  writer.setMetadata("myuid", "420");
+  writer.setMetadata("fnord", "dronf");
+
+  let rows = mkTestRows(opts);
+
+  for (let row of rows) {
+    await writer.appendRow(row);
+  }
+
+  await writer.close();
+}
+
+async function writeTestStream(opts) {
+  let schema = mkTestSchema(opts);
+
+  var out = new stream.PassThrough()
+  let writer = await parquet.ParquetWriter.openStream(schema, out, opts)
+  out.on('data', function(d){
+  })
+  out.on('end', function(){
+  })
+
   writer.setMetadata("myuid", "420");
   writer.setMetadata("fnord", "dronf");
 
@@ -349,6 +372,13 @@ async function readTestFile() {
 
 describe('Parquet', function() {
   this.timeout(60000);
+
+
+  describe('with defaults', function() {
+    it('write a test stream', function() {
+      return writeTestStream({});
+    });
+  })
 
   describe('with DataPageHeaderV1', function() {
     it('write a test file', function() {
