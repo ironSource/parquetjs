@@ -328,11 +328,17 @@ writer.setRowGroupSize(8192);
 ```
 
 
-Depdendencies
+Dependencies
 -------------
 
 Parquet uses [thrift](https://thrift.apache.org/) to encode the schema and other
 metadata, but the actual data does not use thrift.
+
+Notes
+-----
+
+Currently parquet-cpp doesn't fully support DATA_PAGE_V2. You can work around this
+by setting the useDataPageV2 option to false.
 
 Contributions
 -------------
