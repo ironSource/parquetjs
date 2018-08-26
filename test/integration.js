@@ -439,6 +439,11 @@ describe('Parquet', function() {
       return writeTestFile(opts).then(readTestFile);
     });
 
+    it('write a test file with SNAPPY compression and then read it back V2 false', function() {
+      const opts = { useDataPageV2: false, compression: 'SNAPPY' };
+      return writeTestFile(opts).then(readTestFile);
+    });
+
     // it('write a test file with LZO compression', function() {
     //   const opts = { useDataPageV2: true, compression: 'LZO' };
     //   return writeTestFile(opts);
