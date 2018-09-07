@@ -108,6 +108,11 @@ describe('test-files', function() {
     assert.deepEqual(data,[{foo: 'bar'},{}]);
   });
 
+  it('test-enum-type.parquet loads', async function() {
+    const data = await readData('test-enum-type.parquet');
+    assert.deepEqual(data,[{foo: 'bar'}]);
+  });
+
   it('test-null-dictionary.parquet loads', async function() {
     const data = await readData('test-null-dictionary.parquet');
     assert.deepEqual(data,[].concat.apply([{}],[...Array(3)].map( () => ([{foo: 'bar'}, {foo: 'baz'}]))));
