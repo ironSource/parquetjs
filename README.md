@@ -1,6 +1,6 @@
 # parquet.js
 
-fully asynchronous, pure JavaScript implementation of the Parquet file format
+fully asynchronous, pure node.js implementation of the Parquet file format
 
 [![Build Status](https://travis-ci.org/ironSource/parquetjs.png?branch=master)](http://travis-ci.org/ironSource/parquetjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -48,7 +48,7 @@ var schema = new parquet.ParquetSchema({
   name: { type: 'UTF8' },
   quantity: { type: 'INT64' },
   price: { type: 'DOUBLE' },
-  date: { type: 'TIMESTAMP' },
+  date: { type: 'TIMESTAMP_MILLIS' },
   in_stock: { type: 'BOOLEAN' }
 });
 ```
@@ -63,22 +63,56 @@ them on disk.
 
 ``` js
 // create new ParquetWriter that writes to 'fruits.parquet`
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 
 // append a few rows to the file
-writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
-writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: +new Date(), in_stock: true});
+await writer.appendRow({name: 'apples', quantity: 10, price: 2.5, date: new Date(), in_stock: true});
+await writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: new Date(), in_stock: true});
 ```
 
 Once we are finished adding rows to the file, we have to tell the writer object
-to flush the metadata to disk and close the file by calling the `end()` method:
+to flush the metadata to disk and close the file by calling the `close()` method:
+
+
+Usage: Reading files
+--------------------
+
+A parquet reader allows retrieving the rows from a parquet file in order.
+The basic usage is to create a reader and then retrieve a cursor/iterator
+which allows you to consume row after row until all rows have been read.
+
+You may open more than one cursor and use them concurrently. All cursors become
+invalid once close() is called on
+the reader object.
 
 ``` js
-writer.end();
+// create new ParquetReader that reads from 'fruits.parquet`
+let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+
+// create a new cursor
+let cursor = reader.getCursor();
+
+// read all records from the file and print them
+let record = null;
+while (record = await cursor.next()) {
+  console.log(record);
+}
 ```
 
-That is all! You should now have a `fruits.parquet` file containing your data. 
+When creating a cursor, you can optionally request that only a subset of the
+columns should be read from disk. For example:
 
+``` js
+// create a new cursor that will only return the `name` and `price` columns
+let cursor = reader.getCursor(['name', 'price']);
+```
+
+It is important that you call close() after you are finished reading the file to
+avoid leaking file descriptors.
+
+``` js
+await reader.close();
+```
 
 Encodings
 ---------
@@ -125,9 +159,9 @@ var schema = new parquet.ParquetSchema({
   quantity: { type: 'INT64', optional: true },
 });
 
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
-writer.appendRow({name: 'apples', quantity: 10 });
-writer.appendRow({name: 'banana' }); // not in stock
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
+await writer.appendRow({name: 'apples', quantity: 10 });
+await writer.appendRow({name: 'banana' }); // not in stock
 ```
 
 
@@ -146,20 +180,20 @@ where each row contains a name, a list of colours and a list of "stock" objects.
 // advanced fruits table
 var schema = new parquet.ParquetSchema({
   name: { type: 'UTF8' },
-  colour: { type: 'UTF8', repeated: true },
+  colours: { type: 'UTF8', repeated: true },
   stock: {
     repeated: true,
-    fields: [
+    fields: {
       price: { type: 'DOUBLE' },
       quantity: { type: 'INT64' },
-    ]
+    }
   }
 });
 
 // the above schema allows us to store the following rows:
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 
-writer.appendRow({
+await writer.appendRow({
   name: 'banana',
   colours: ['yellow'],
   stock: [
@@ -168,7 +202,7 @@ writer.appendRow({
   ]
 });
 
-writer.appendRow({
+await writer.appendRow({
   name: 'apple',
   colours: ['red', 'green'],
   stock: [
@@ -176,6 +210,19 @@ writer.appendRow({
     { price: 1.30, quantity: 230 }
   ]
 });
+
+await writer.close();
+
+// reading nested rows with a list of explicit columns
+let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+
+let cursor = reader.getCursor([['name'], ['stock', 'price']]);
+let record = null;
+while (record = await cursor.next()) {
+  console.log(record);
+}
+
+await reader.close();
 ```
 
 It might not be obvious why one would want to implement or use such a feature when
@@ -186,7 +233,7 @@ Putting aside the philosophical discussion on the merits of strict typing,
 knowing about the structure and subtypes of all records (globally) means we do not
 have to duplicate this metadata (i.e. the field names) for every record. On top
 of that, knowing about the type of a field allows us to compress the remaining
-data far more efficiently.
+data more efficiently.
 
 
 List of Supported Types & Encodings
@@ -227,7 +274,7 @@ Buffering & Row Group Size
 --------------------------
 
 When writing a Parquet file, the `ParquetWriter` will buffer rows in memory
-until a row group is complete (or `end()` is called) and then write out the row
+until a row group is complete (or `close()` is called) and then write out the row
 group to disk.
 
 The size of a row group is configurable by the user and controls the maximum
@@ -235,7 +282,7 @@ number of rows that are buffered in memory at any given time as well as the numb
 of rows that are co-located on disk:
 
 ``` js
-var writer = new parquet.ParquetFileWriter(schema, 'fruits.parquet');
+var writer = await parquet.ParquetWriter.openFile(schema, 'fruits.parquet');
 writer.setRowGroupSize(8192);
 ```
 
@@ -245,6 +292,10 @@ Depdendencies
 
 Parquet uses [thrift](https://thrift.apache.org/) to encode the schema and other
 metadata, but the actual data does not use thrift.
+
+Contributions
+-------------
+Please make sure you sign the [contributor license agreement](https://github.com/ironSource/cla) in order for us to be able to accept your contribution. We thank you very much!
 
 
 License
