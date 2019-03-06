@@ -25,6 +25,15 @@ To use parquet.js with node.js, install it using npm:
   $ npm install parquetjs
 ```
 
+Snappy, GZip, and Brotli compression is bundled, but if you want to use lzo 
+then install the optional peer dependency `lzo`. `lzo` depends on native code
+so it will compile a node.js extension as part of the npm install.
+
+```
+# optionally if lzo compression is needed
+  $ npm install lzo
+```
+
 _parquet.js requires node.js >= 7.6.0_
 
 

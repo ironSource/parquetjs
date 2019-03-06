@@ -17,12 +17,15 @@
   "dependencies": {
     "brotli": "^1.3.0",
     "bson": "^1.0.4",
+    "codependency": "^2.1.0",
     "int53": "^0.2.4",
-    "lzo": "^0.4.0",
     "object-stream": "0.0.1",
     "snappyjs": "^0.6.0",
     "thrift": "^0.11.0",
     "varint": "^5.0.0"
+  },
+  "optionalPeerDependencies": {
+    "lzo": "^0.4.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
