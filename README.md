@@ -22,7 +22,7 @@ Installation
 To use parquet.js with node.js, install it using npm:
 
 ```
-  $ npm install parquetjs
+  $ npm install parquetjs-lite
 ```
 
 _parquet.js requires node.js >= 7.6.0_
@@ -35,7 +35,7 @@ Once you have installed the parquet.js library, you can import it as a single
 module:
 
 ``` js
-var parquet = require('parquetjs');
+var parquet = require('parquetjs-lite');
 ```
 
 Parquet files have a strict schema, similar to tables in a SQL database. So,
