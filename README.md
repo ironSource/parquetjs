@@ -114,6 +114,30 @@ avoid leaking file descriptors.
 await reader.close();
 ```
 
+### Using Streams
+
+Instead of using a file, a writeable stream can consume the parquet output. The stream needs a `close` method defined which is called when the parquetWriter is closed. To write to a `Buffer`, add it as part of the stream.
+
+```js
+let stream = require('stream');
+
+let writeableStream = new stream.Writable();
+let buffer = Buffer.from('');
+
+writeableStream._write = (chunk, encoding, done) => {
+  buffer = Buffer.concat([buffer, chunk]);
+    done();
+  };
+writeableStream.close = e => e(); // pass in an error if there was one
+
+let parquetWriter = await parquet.ParquetWriter.openStream(schema, writeableStream);
+
+parquetWriter.appendRow(<row>)
+parquetWriter.close()
+
+buffer // contains all appended rows in parquet format
+```
+
 Encodings
 ---------
 
