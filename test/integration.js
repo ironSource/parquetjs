@@ -4,6 +4,8 @@ const fs = require('fs');
 const os = require('os');
 const assert = chai.assert;
 const parquet = require('../parquet.js');
+const parquet_thrift = require('../gen-nodejs/parquet_types');
+const parquet_util = require('../lib/util');
 const objectStream = require('object-stream');
 
 const TEST_NUM_ROWS = 10000;
@@ -110,6 +112,43 @@ async function writeTestFile(opts) {
   }
 
   await writer.close();
+}
+
+async function sampleColumnHeaders() {
+  let reader = await parquet.ParquetReader.openFile('fruits.parquet');
+  let column = reader.metadata.row_groups[0].columns[0];
+  let buffer = await reader.envelopeReader.read(+column.meta_data.data_page_offset, +column.meta_data.total_compressed_size);
+
+  let cursor = {
+    buffer: buffer,
+    offset: 0,
+    size: buffer.length
+  };
+
+  const pages = [];
+
+  while (cursor.offset < cursor.size) {
+    const pageHeader = new parquet_thrift.PageHeader();
+    cursor.offset += parquet_util.decodeThrift(pageHeader, cursor.buffer.slice(cursor.offset));
+    pages.push(pageHeader);
+    cursor.offset += pageHeader.compressed_page_size;
+  }
+
+  return {column, pages};
+}
+
+async function verifyPages() {
+  let rowCount = 0;
+  const column = await sampleColumnHeaders();
+
+  column.pages.forEach(d => {
+    let header = d.data_page_header || d.data_page_header_v2;
+    assert.isAbove(header.num_values,0);
+    rowCount += header.num_values;
+  });
+
+  assert.isAbove(column.pages.length,1);
+  assert.equal(rowCount, column.column.meta_data.num_values);
 }
 
 async function readTestFile() {
@@ -299,8 +338,12 @@ describe('Parquet', function() {
     });
 
     it('write a test file and then read it back', function() {
-      const opts = { useDataPageV2: false, compression: 'UNCOMPRESSED' };
+      const opts = { useDataPageV2: false, pageSize: 2000, compression: 'UNCOMPRESSED' };
       return writeTestFile(opts).then(readTestFile);
+    });
+
+    it('verify that data is split into pages', function() {
+      return verifyPages();
     });
   });
 
@@ -311,8 +354,12 @@ describe('Parquet', function() {
     });
 
     it('write a test file and then read it back', function() {
-      const opts = { useDataPageV2: true, compression: 'UNCOMPRESSED' };
+      const opts = { useDataPageV2: true, pageSize: 2000, compression: 'UNCOMPRESSED' };
       return writeTestFile(opts).then(readTestFile);
+    });
+
+    it('verify that data is split into pages', function() {
+      return verifyPages();
     });
 
     it('write a test file with GZIP compression', function() {
@@ -374,4 +421,3 @@ describe('Parquet', function() {
   });
 
 });
-
