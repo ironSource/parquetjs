@@ -277,6 +277,12 @@ of that, knowing about the type of a field allows us to compress the remaining
 data more efficiently.
 
 
+Nested Lists for Hive / Athena
+-----------------------
+
+Lists have to be annotated to be queriable with AWS Athena.   See [parquet-format](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#lists) for more detail and a full working example with comments in the test directory ([`test/list.js`](test/list.js))
+
+
 List of Supported Types & Encodings
 -----------------------------------
 
