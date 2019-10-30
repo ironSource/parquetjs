@@ -392,10 +392,10 @@ describe('ParquetShredder', function() {
       dlevels: [0, 0, 0, 0],
       rlevels: [0, 0, 0, 0],
       values:[
-        new Buffer([97, 112, 112, 108, 101]),
-        new Buffer([111, 114, 97, 110, 103, 101]),
-        new Buffer([107, 105, 119, 105]),
-        new Buffer([98, 97, 110, 97, 110, 97])
+        Buffer.from([97, 112, 112, 108, 101]),
+        Buffer.from([111, 114, 97, 110, 103, 101]),
+        Buffer.from([107, 105, 119, 105]),
+        Buffer.from([98, 97, 110, 97, 110, 97])
       ],
       count:4
     };
@@ -450,10 +450,10 @@ describe('ParquetShredder', function() {
       dlevels: [0, 0, 0, 0],
       rlevels: [0, 0, 0, 0],
       values:[
-        new Buffer([97, 112, 112, 108, 101]),
-        new Buffer([111, 114, 97, 110, 103, 101]),
-        new Buffer([107, 105, 119, 105]),
-        new Buffer([98, 97, 110, 97, 110, 97])
+        Buffer.from([97, 112, 112, 108, 101]),
+        Buffer.from([111, 114, 97, 110, 103, 101]),
+        Buffer.from([107, 105, 119, 105]),
+        Buffer.from([98, 97, 110, 97, 110, 97])
       ],
       count:4
     };
@@ -469,10 +469,10 @@ describe('ParquetShredder', function() {
       dlevels: [1, 1, 1, 0, 1],
       rlevels: [0, 1, 0, 0, 0],
       values: [
-        new Buffer([65]),
-        new Buffer([66]),
-        new Buffer([88]),
-        new Buffer([67])
+        Buffer.from([65]),
+        Buffer.from([66]),
+        Buffer.from([88]),
+        Buffer.from([67])
       ],
       count: 5
     };
@@ -531,7 +531,7 @@ describe('ParquetShredder', function() {
       dlevels: [0],
       rlevels: [0],
       values: [
-        new Buffer([97, 112, 112, 108, 101])
+        Buffer.from([97, 112, 112, 108, 101])
       ],
       count: 1
     };
