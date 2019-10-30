@@ -11,13 +11,13 @@ describe('ParquetCodec::PLAIN', function() {
         'BOOLEAN',
         [true, false, true, true, false, true, false, false]);
 
-    assert.deepEqual(buf, new Buffer([0x2d])); // b101101
+    assert.deepEqual(buf, Buffer.from([0x2d])); // b101101
   });
 
   it('should decode BOOLEAN values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([0x2d]) // b101101
+      buffer: Buffer.from([0x2d]) // b101101
     };
 
     let vals = parquet_codec_plain.decodeValues('BOOLEAN', buf, 8, {});
@@ -30,7 +30,7 @@ describe('ParquetCodec::PLAIN', function() {
         'INT32',
         [42, 17, 23, -1, -2, -3, 9000, 420]);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x2a, 0x00, 0x00, 0x00, // 42
       0x11, 0x00, 0x00, 0x00, // 17
       0x17, 0x00, 0x00, 0x00, // 23
@@ -45,7 +45,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode INT32 values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x2a, 0x00, 0x00, 0x00, // 42
         0x11, 0x00, 0x00, 0x00, // 17
         0x17, 0x00, 0x00, 0x00, // 23
@@ -67,7 +67,7 @@ describe('ParquetCodec::PLAIN', function() {
         'INT64',
         [42, 17, 23, -1, -2, -3, 9000, 420]);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 42
       0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 17
       0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 23
@@ -82,7 +82,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode INT64 values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 42
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 17
         0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 23
@@ -104,7 +104,7 @@ describe('ParquetCodec::PLAIN', function() {
         'INT96',
         [42, 17, 23, -1, -2, -3, 9000, 420]);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 42
       0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 17
       0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 23
@@ -119,7 +119,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode INT96 values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 42
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 17
         0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 23
@@ -141,7 +141,7 @@ describe('ParquetCodec::PLAIN', function() {
         'FLOAT',
         [42.0, 23.5, 17.0, 4.20, 9000]);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x00, 0x00, 0x28, 0x42, // 42.0
       0x00, 0x00, 0xbc, 0x41, // 23.5
       0x00, 0x00, 0x88, 0x41, // 17.0
@@ -153,7 +153,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode FLOAT values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x00, 0x00, 0x28, 0x42, // 42.0
         0x00, 0x00, 0xbc, 0x41, // 23.5
         0x00, 0x00, 0x88, 0x41, // 17.0
@@ -172,7 +172,7 @@ describe('ParquetCodec::PLAIN', function() {
         'DOUBLE',
         [42.0, 23.5, 17.0, 4.20, 9000]);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x45, 0x40, // 42.0
       0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x37, 0x40, // 23.5
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, // 17.0
@@ -184,7 +184,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode DOUBLE values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x45, 0x40, // 42.0
         0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x37, 0x40, // 23.5
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, // 17.0
@@ -201,9 +201,9 @@ describe('ParquetCodec::PLAIN', function() {
   it('should encode BYTE_ARRAY values', function() {
     let buf = parquet_codec_plain.encodeValues(
         'BYTE_ARRAY',
-        ['one', new Buffer([0xde, 0xad, 0xbe, 0xef]), 'three']);
+        ['one', Buffer.from([0xde, 0xad, 0xbe, 0xef]), 'three']);
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x03, 0x00, 0x00, 0x00,       // (3)
       0x6f, 0x6e, 0x65,             // 'one'
       0x04, 0x00, 0x00, 0x00,       // (4)
@@ -216,7 +216,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode BYTE_ARRAY values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x03, 0x00, 0x00, 0x00,       // (3)
         0x6f, 0x6e, 0x65,             // 'one'
         0x04, 0x00, 0x00, 0x00,       // (4)
@@ -230,7 +230,7 @@ describe('ParquetCodec::PLAIN', function() {
     assert.equal(buf.offset, 24);
     assert.deepEqual(vals, [
       Buffer.from('one'),
-      new Buffer([0xde, 0xad, 0xbe, 0xef]),
+      Buffer.from([0xde, 0xad, 0xbe, 0xef]),
       Buffer.from('three')
     ]);
   });
@@ -238,11 +238,11 @@ describe('ParquetCodec::PLAIN', function() {
   it('should encode FIXED_LEN_BYTE_ARRAY values', function() {
     let buf = parquet_codec_plain.encodeValues(
         'FIXED_LEN_BYTE_ARRAY',
-        ['oneoo', new Buffer([0xde, 0xad, 0xbe, 0xef, 0x42]), 'three'], {
+        ['oneoo', Buffer.from([0xde, 0xad, 0xbe, 0xef, 0x42]), 'three'], {
           typeLength: 5
         });
 
-    assert.deepEqual(buf, new Buffer([
+    assert.deepEqual(buf, Buffer.from([
       0x6f, 0x6e, 0x65, 0x6f, 0x6f, // 'oneoo'
       0xde, 0xad, 0xbe, 0xef, 0x42, // 0xdeadbeef42
       0x74, 0x68, 0x72, 0x65, 0x65  // 'three'
@@ -252,7 +252,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should decode FIXED_LEN_BYTE_ARRAY values', function() {
     let buf = {
       offset: 0,
-      buffer: new Buffer([
+      buffer: Buffer.from([
         0x6f, 0x6e, 0x65, 0x6f, 0x6f, // 'oneoo'
         0xde, 0xad, 0xbe, 0xef, 0x42, // 0xdeadbeef42
         0x74, 0x68, 0x72, 0x65, 0x65  // 'three'
@@ -266,7 +266,7 @@ describe('ParquetCodec::PLAIN', function() {
     assert.equal(buf.offset, 15);
     assert.deepEqual(vals, [
       Buffer.from('oneoo'),
-      new Buffer([0xde, 0xad, 0xbe, 0xef, 0x42]),
+      Buffer.from([0xde, 0xad, 0xbe, 0xef, 0x42]),
       Buffer.from('three')
     ]);
   });

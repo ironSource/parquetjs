@@ -14,14 +14,14 @@ describe('ParquetCodec::RLE', function() {
           bitWidth: 3
         });
 
-    assert.deepEqual(buf, new Buffer([0x03, 0x88, 0xc6, 0xfa]));
+    assert.deepEqual(buf, Buffer.from([0x03, 0x88, 0xc6, 0xfa]));
   });
 
   it('should decode bitpacked values', function() {
     let vals = parquet_codec_rle.decodeValues(
         'INT32',
         {
-          buffer: new Buffer([0x03, 0x88, 0xc6, 0xfa]),
+          buffer: Buffer.from([0x03, 0x88, 0xc6, 0xfa]),
           offset: 0,
         },
         8,
@@ -43,14 +43,14 @@ describe('ParquetCodec::RLE', function() {
             bitWidth: 3
           });
 
-      assert.deepEqual(buf, new Buffer([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]));
+      assert.deepEqual(buf, Buffer.from([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]));
     });
 
     it('should decode bitpacked values', function() {
       let vals = parquet_codec_rle.decodeValues(
           'INT32',
           {
-            buffer: new Buffer([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]),
+            buffer: Buffer.from([0x05, 0x88, 0xc6, 0xfa, 0x2e, 0x00, 0x00]),
             offset: 0,
           },
           10,
@@ -72,14 +72,14 @@ describe('ParquetCodec::RLE', function() {
           bitWidth: 6
         });
 
-    assert.deepEqual(buf, new Buffer([0x10, 0x2a]));
+    assert.deepEqual(buf, Buffer.from([0x10, 0x2a]));
   });
 
   it('should decode repeated values', function() {
     let vals = parquet_codec_rle.decodeValues(
         'INT32',
         {
-          buffer: new Buffer([0x10, 0x2a]),
+          buffer: Buffer.from([0x10, 0x2a]),
           offset: 0,
         },
         8,
@@ -100,14 +100,14 @@ describe('ParquetCodec::RLE', function() {
           bitWidth: 3
         });
 
-    assert.deepEqual(buf, new Buffer([0x03, 0x88, 0xc6, 0xfa, 0x10, 0x04, 0x03, 0x88, 0xc6, 0xfa]));
+    assert.deepEqual(buf, Buffer.from([0x03, 0x88, 0xc6, 0xfa, 0x10, 0x04, 0x03, 0x88, 0xc6, 0xfa]));
   });
 
   it('should decode mixed runs', function() {
     let vals = parquet_codec_rle.decodeValues(
         'INT32',
         {
-          buffer: new Buffer([0x03, 0x88, 0xc6, 0xfa, 0x10, 0x04, 0x03, 0x88, 0xc6, 0xfa]),
+          buffer: Buffer.from([0x03, 0x88, 0xc6, 0xfa, 0x10, 0x04, 0x03, 0x88, 0xc6, 0xfa]),
           offset: 0,
         },
         24,
