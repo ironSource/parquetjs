@@ -73,6 +73,9 @@ await writer.appendRow({name: 'oranges', quantity: 10, price: 2.5, date: new Dat
 Once we are finished adding rows to the file, we have to tell the writer object
 to flush the metadata to disk and close the file by calling the `close()` method:
 
+``` js
+await writer.close();
+```
 
 Usage: Reading files
 --------------------
