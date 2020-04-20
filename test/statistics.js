@@ -33,29 +33,29 @@ describe('statistics', async function() {
     
     writer.appendRow({
       name: 'apples',
-      quantity: 10,
+      quantity: 10n,
       price: 2.6,
       day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 1000),
       finger: "FNORD",
       inter: { months: 10, days: 5, milliseconds: 777 },
       stock: [
-        { quantity: 10, warehouse: "A" },
-        { quantity: 20, warehouse: "B" }
+        { quantity: 10n, warehouse: "A" },
+        { quantity: 20n, warehouse: "B" }
       ],
       colour: [ 'green', 'red' ]
     });
 
     writer.appendRow({
       name: 'oranges',
-      quantity: 20,
+      quantity: 20n,
       price: 2.7,
       day: new Date('2018-03-03'),
       date: new Date(TEST_VTIME + 2000),
       finger: "ABCDE",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: {
-        quantity: [50, 33, 34, 35, 36],
+        quantity: [50n, 33n, 34n, 35n, 36n],
         warehouse: "X"
       },
       colour: [ 'orange' ]
@@ -64,14 +64,14 @@ describe('statistics', async function() {
     writer.appendRow({
       name: 'kiwi',
       price: 4.2,
-      quantity: 15,
+      quantity: 15n,
       day: new Date('2008-11-26'),
       date: new Date(TEST_VTIME + 8000),
       finger: "XCVBN",
       inter: { months: 60, days: 1, milliseconds: 99 },
       stock: [
-        { quantity: 42, warehouse: "f" },
-        { quantity: 21, warehouse: "x" }
+        { quantity: 42n, warehouse: "f" },
+        { quantity: 21n, warehouse: "x" }
       ],
       colour: [ 'green', 'brown', 'yellow' ],
       meta_json: { expected_ship_date: TEST_VTIME }
@@ -122,10 +122,10 @@ describe('statistics', async function() {
     assert.equal(+rowStats('finger').distinct_count, 3);
     assert.equal(+rowStats('finger').null_count, 0);
 
-    assert.deepEqual(rowStats('stock,quantity').min_value, 10);
-    assert.deepEqual(rowStats('stock,quantity').max_value, 50);
-    assert.equal(+rowStats('stock,quantity').distinct_count, 9);
-    assert.equal(+rowStats('stock,quantity').null_count, 1);
+    assert.deepEqual(rowStats('stock,quantity').min_value, 10n);
+    assert.deepEqual(rowStats('stock,quantity').max_value, 50n);
+    assert.equal(+rowStats('stock,quantity').distinct_count, 9n);
+    assert.equal(+rowStats('stock,quantity').null_count, 1n);
 
     assert.deepEqual(rowStats('stock,warehouse').min_value, 'A');
     assert.deepEqual(rowStats('stock,warehouse').max_value, 'x');
@@ -150,8 +150,8 @@ describe('statistics', async function() {
     assert.deepEqual(name.max_values, ['oranges','banana']);
 
     const quantity = await reader.envelopeReader.readColumnIndex('quantity', row);
-    assert.deepEqual(quantity.min_values, [10, undefined]);
-    assert.deepEqual(quantity.max_values, [20, undefined]);
+    assert.deepEqual(quantity.min_values, [10n, undefined]);
+    assert.deepEqual(quantity.max_values, [20n, undefined]);
 
     const price = await reader.envelopeReader.readColumnIndex('price', row);
     assert.deepEqual(price.min_values, [2.6, 3.2]);
@@ -166,8 +166,8 @@ describe('statistics', async function() {
     assert.deepEqual(finger.max_values, [ 'XCVBN', 'FNORD' ]);
 
     const stockQuantity = await reader.envelopeReader.readColumnIndex('stock,quantity', row);
-    assert.deepEqual(stockQuantity.min_values, [ 10, undefined ]);
-    assert.deepEqual(stockQuantity.max_values, [ 50, undefined ]);
+    assert.deepEqual(stockQuantity.min_values, [ 10n, undefined ]);
+    assert.deepEqual(stockQuantity.max_values, [ 50n, undefined ]);
 
     const stockWarehouse = await reader.envelopeReader.readColumnIndex('stock,warehouse', row);
     assert.deepEqual(stockWarehouse.min_values, [ 'A', undefined ]);
@@ -188,15 +188,15 @@ describe('statistics', async function() {
     let writer = await parquet.ParquetWriter.openFile(schema, 'fruits-no-index.parquet', {pageSize: 3, pageIndex: false});
     writer.appendRow({
       name: 'apples',
-      quantity: 10,
+      quantity: 10n,
       price: 2.6,
       day: new Date('2017-11-26'),
       date: new Date(TEST_VTIME + 1000),
       finger: "FNORD",
       inter: { months: 10, days: 5, milliseconds: 777 },
       stock: [
-        { quantity: 10, warehouse: "A" },
-        { quantity: 20, warehouse: "B" }
+        { quantity: 10n, warehouse: "A" },
+        { quantity: 20n, warehouse: "B" }
       ],
       colour: [ 'green', 'red' ],
       meta_json: { expected_ship_date: TEST_VTIME }

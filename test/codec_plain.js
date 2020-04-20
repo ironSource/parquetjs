@@ -65,7 +65,7 @@ describe('ParquetCodec::PLAIN', function() {
   it('should encode INT64 values', function() {
     let buf = parquet_codec_plain.encodeValues(
         'INT64',
-        [42, 17, 23, -1, -2, -3, 9000, 420]);
+        [42n, 17n, 23n, -1n, -2n, -3n, 9000n, 420n]);
 
     assert.deepEqual(buf, Buffer.from([
       0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 42
@@ -96,7 +96,7 @@ describe('ParquetCodec::PLAIN', function() {
 
     let vals = parquet_codec_plain.decodeValues('INT64', buf, 8, {});
     assert.equal(buf.offset, 64);
-    assert.deepEqual(vals, [42, 17, 23, -1, -2, -3, 9000, 420]);
+    assert.deepEqual(vals, [42n, 17n, 23n, -1n, -2n, -3n, 9000n, 420n]);
   });
 
   it('should encode INT96 values', function() {

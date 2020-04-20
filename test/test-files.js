@@ -55,7 +55,8 @@ describe('test-files', function() {
     this.timeout(5000);
     let data = await readData('customer.impala.parquet',100);
     bufferToString(data);
-    const expected = require(path.join(__dirname,'test-files','customer.impala.json'));
+    const expected = require(path.join(__dirname,'test-files','customer.impala.json')).map(el => { return { ...el, c_custkey: BigInt(el.c_custkey)}});
+
     
     assert.deepEqual(data,expected);
   });
@@ -127,11 +128,11 @@ describe('test-files', function() {
     const data = await readData('test.parquet');
     bufferToString(data);
     assert.deepEqual(data.slice(0,5), [
-      {'bhello':'hello','f':0,'i32':0,'i64':0,'hello':'hello'},
-      {'bhello':'people','f':1,'i32':1,'i64':1,'hello':'people'},
-      {'bhello':'people','f':2,'i32':2,'i64':2,'hello':'people'},
-      {'bhello':'people','f':3,'i32':3,'i64':3,'hello':'people'},
-      {'bhello':'you','f':4,'i32':4,'i64':4,'hello':'you'}
+      {'bhello':'hello','f':0,'i32':0,'i64':0n,'hello':'hello'},
+      {'bhello':'people','f':1,'i32':1,'i64':1n,'hello':'people'},
+      {'bhello':'people','f':2,'i32':2,'i64':2n,'hello':'people'},
+      {'bhello':'people','f':3,'i32':3,'i64':3n,'hello':'people'},
+      {'bhello':'you','f':4,'i32':4,'i64':4n,'hello':'you'}
     ]);
   });
 });
