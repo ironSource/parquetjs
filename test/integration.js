@@ -105,9 +105,7 @@ async function writeTestFile(opts) {
 
   let rows = mkTestRows(opts);
 
-  for (let row of rows) {
-    await writer.appendRow(row);
-  }
+  rows.forEach(async row => await writer.appendRow(row));
 
   await writer.close();
 }
