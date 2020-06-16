@@ -290,7 +290,7 @@ writer.setRowGroupSize(8192);
 ```
 
 
-Depdendencies
+Dependencies
 -------------
 
 Parquet uses [thrift](https://thrift.apache.org/) to encode the schema and other
@@ -304,7 +304,7 @@ Please make sure you sign the [contributor license agreement](https://github.com
 License
 -------
 
-Copyright (c) 2017 ironSource Ltd.
+Copyright (c) 2017-2019 ironSource Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the
