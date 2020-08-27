@@ -1,5 +1,5 @@
 {
-  "name": "parquetjs",
+  "name": "parquetjs-patch",
   "description": "fully asynchronous, pure JavaScript implementation of the Parquet file format",
   "main": "parquet.js",
   "version": "0.11.3",
