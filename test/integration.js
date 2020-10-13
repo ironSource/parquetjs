@@ -11,14 +11,15 @@ const TEST_VTIME =  new Date();
 
 function mkTestSchema(opts) {
   return new parquet.ParquetSchema({
-    name:       { type: 'UTF8', compression: opts.compression },
+    name:         { type: 'UTF8', compression: opts.compression },
+    ['codename']: { type: 'UTF8', optional: true, compression: opts.compression },
     //quantity:   { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
-    quantity:   { type: 'INT64', optional: true, compression: opts.compression },
-    price:      { type: 'DOUBLE', compression: opts.compression },
-    date:       { type: 'TIMESTAMP_MICROS', compression: opts.compression },
-    day:        { type: 'DATE', compression: opts.compression },
-    finger:     { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
-    inter:      { type: 'INTERVAL', compression: opts.compression },
+    quantity:     { type: 'INT64', optional: true, compression: opts.compression },
+    price:        { type: 'DOUBLE', compression: opts.compression },
+    date:         { type: 'TIMESTAMP_MICROS', compression: opts.compression },
+    day:          { type: 'DATE', compression: opts.compression },
+    finger:       { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
+    inter:        { type: 'INTERVAL', compression: opts.compression },
     stock: {
       repeated: true,
       fields: {
@@ -37,6 +38,7 @@ function mkTestRows(opts) {
   for (let i = 0; i < TEST_NUM_ROWS; ++i) {
     rows.push({
       name: 'apples',
+      ['codename']: 'red fruits',
       quantity: 10,
       price: 2.6,
       day: new Date('2017-11-26'),
@@ -67,6 +69,7 @@ function mkTestRows(opts) {
 
     rows.push({
       name: 'kiwi',
+      ['codename']: 'green skin',
       price: 4.2,
       quantity: undefined,
       day: new Date('2017-11-26'),
@@ -105,7 +108,9 @@ async function writeTestFile(opts) {
 
   let rows = mkTestRows(opts);
 
-  rows.forEach(async row => await writer.appendRow(row));
+  for (let row of rows) {
+    await writer.appendRow(row);
+  }
 
   await writer.close();
 }
@@ -116,8 +121,9 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.fieldList.length, 12);
+  assert.equal(schema.fieldList.length, 13);
   assert(schema.fields.name);
+  assert(schema.fields['codename']);
   assert(schema.fields.stock);
   assert(schema.fields.stock.fields.quantity);
   assert(schema.fields.stock.fields.warehouse);
@@ -134,6 +140,21 @@ async function readTestFile() {
     assert.equal(c.compression, 'UNCOMPRESSED');
     assert.equal(c.rLevelMax, 0);
     assert.equal(c.dLevelMax, 0);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    const c = schema.fields['codename'];
+    assert.equal(c.name, 'codename');
+    assert.equal(c.primitiveType, 'BYTE_ARRAY');
+    assert.equal(c.originalType, 'UTF8');
+    assert.deepEqual(c.path, ['codename']);
+    assert.equal(c.repetitionType, 'OPTIONAL');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 0);
+    assert.equal(c.dLevelMax, 1);
     assert.equal(!!c.isNested, false);
     assert.equal(c.fieldCount, undefined);
   }
@@ -203,6 +224,7 @@ async function readTestFile() {
     for (let i = 0; i < TEST_NUM_ROWS; ++i) {
       assert.deepEqual(await cursor.next(), {
         name: 'apples',
+        ['codename']: 'red fruits',
         quantity: 10,
         price: 2.6,
         day: new Date('2017-11-26'),
@@ -232,6 +254,7 @@ async function readTestFile() {
 
       assert.deepEqual(await cursor.next(), {
         name: 'kiwi',
+        ['codename']: 'green skin',
         price: 4.2,
         day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 8000 * i),
@@ -273,11 +296,37 @@ async function readTestFile() {
   }
 
   {
-    let cursor = reader.getCursor(['name', 'quantity']);
+    let cursor = reader.getCursor([['stock', 'quantity'], ['stock', 'warehouse']]);
     for (let i = 0; i < TEST_NUM_ROWS; ++i) {
-      assert.deepEqual(await cursor.next(), { name: 'apples', quantity: 10 });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [10], warehouse: "A" },
+          { quantity: [20], warehouse: "B" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [50, 33], warehouse: "X" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [42], warehouse: "f" },
+          { quantity: [20], warehouse: "x" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { });
+    }
+
+    assert.equal(await cursor.next(), null);
+  }
+
+  {
+    let cursor = reader.getCursor(['name', 'codename', 'quantity']);
+    for (let i = 0; i < TEST_NUM_ROWS; ++i) {
+      assert.deepEqual(await cursor.next(), { name: 'apples', codename: 'red fruits', quantity: 10 });
       assert.deepEqual(await cursor.next(), { name: 'oranges', quantity: 20 });
-      assert.deepEqual(await cursor.next(), { name: 'kiwi' });
+      assert.deepEqual(await cursor.next(), { name: 'kiwi', codename: 'green skin' });
       assert.deepEqual(await cursor.next(), { name: 'banana' });
     }
 
@@ -296,7 +345,7 @@ describe('Parquet', function() {
       return writeTestFile(opts);
     });
 
-    it('write a test file and then read it back', function() {
+    it.only('write a test file and then read it back', function() {
       const opts = { useDataPageV2: false, compression: 'UNCOMPRESSED' };
       return writeTestFile(opts).then(readTestFile);
     });
