@@ -11,19 +11,19 @@ const TEST_VTIME =  new Date();
 
 function mkTestSchema(opts) {
   return new parquet.ParquetSchema({
-    name:         { type: 'UTF8', compression: opts.compression },
-    ['codename, etc']: { type: 'UTF8', optional: true, compression: opts.compression },
-    //quantity:   { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
-    quantity:     { type: 'INT64', optional: true, compression: opts.compression },
-    price:        { type: 'DOUBLE', compression: opts.compression },
-    date:         { type: 'TIMESTAMP_MICROS', compression: opts.compression },
-    day:          { type: 'DATE', compression: opts.compression },
-    finger:       { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
-    inter:        { type: 'INTERVAL', compression: opts.compression },
+    name:            { type: 'UTF8', compression: opts.compression },
+    'codename, etc': { type: 'UTF8', optional: true, compression: opts.compression },
+    //quantity:      { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
+    quantity:        { type: 'INT64', optional: true, compression: opts.compression },
+    price:           { type: 'DOUBLE', compression: opts.compression },
+    date:            { type: 'TIMESTAMP_MICROS', compression: opts.compression },
+    day:             { type: 'DATE', compression: opts.compression },
+    finger:          { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
+    inter:           { type: 'INTERVAL', compression: opts.compression },
     stock: {
       repeated: true,
       fields: {
-        quantity: { type: 'INT64', repeated: true },
+        quantity:  { type: 'INT64', repeated: true },
         warehouse: { type: 'UTF8', compression: opts.compression },
       }
     },
@@ -38,7 +38,7 @@ function mkTestRows(opts) {
   for (let i = 0; i < TEST_NUM_ROWS; ++i) {
     rows.push({
       name: 'apples',
-      ['codename, etc']: 'red fruits',
+      'codename, etc': 'red fruits',
       quantity: 10,
       price: 2.6,
       day: new Date('2017-11-26'),
@@ -69,7 +69,7 @@ function mkTestRows(opts) {
 
     rows.push({
       name: 'kiwi',
-      ['codename, etc']: 'green skin',
+      'codename, etc': 'green skin',
       price: 4.2,
       quantity: undefined,
       day: new Date('2017-11-26'),
@@ -224,7 +224,7 @@ async function readTestFile() {
     for (let i = 0; i < TEST_NUM_ROWS; ++i) {
       assert.deepEqual(await cursor.next(), {
         name: 'apples',
-        ['codename, etc']: 'red fruits',
+        'codename, etc': 'red fruits',
         quantity: 10,
         price: 2.6,
         day: new Date('2017-11-26'),
@@ -254,7 +254,7 @@ async function readTestFile() {
 
       assert.deepEqual(await cursor.next(), {
         name: 'kiwi',
-        ['codename, etc']: 'green skin',
+        'codename, etc': 'green skin',
         price: 4.2,
         day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 8000 * i),
