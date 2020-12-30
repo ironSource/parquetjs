@@ -385,10 +385,11 @@ describe('ParquetShredder', function() {
 
     let buffer = {
       rowCount: 4,
-      columnData: {}
+      columnData: []
     };
 
-    buffer.columnData['name'] = {
+    buffer.columnData.push({
+      path_in_schema: ['name'],
       dlevels: [0, 0, 0, 0],
       rlevels: [0, 0, 0, 0],
       values:[
@@ -398,14 +399,15 @@ describe('ParquetShredder', function() {
         new Buffer([98, 97, 110, 97, 110, 97])
       ],
       count:4
-    };
+    });
 
-    buffer.columnData['price'] = {
+    buffer.columnData.push({
+      path_in_schema: ['price'],
       dlevels: [1, 1, 1, 1, 1, 1],
       rlevels: [0, 0, 1, 0, 1, 0],
       values: [23.5, 17, 23, 99, 100, 42],
       count: 6
-    };
+    });
 
     let records = parquet.ParquetShredder.materializeRecords(schema, buffer);
 
@@ -443,10 +445,11 @@ describe('ParquetShredder', function() {
 
     let buffer = {
       rowCount: 4,
-      columnData: {}
+      columnData: []
     };
 
-    buffer.columnData['name'] = {
+    buffer.columnData.push({
+      path_in_schema: ['name'],
       dlevels: [0, 0, 0, 0],
       rlevels: [0, 0, 0, 0],
       values:[
@@ -456,16 +459,18 @@ describe('ParquetShredder', function() {
         new Buffer([98, 97, 110, 97, 110, 97])
       ],
       count:4
-    };
+    });
 
-    buffer.columnData[['stock',  'quantity']] = {
+    buffer.columnData.push({
+      path_in_schema: ['stock',  'quantity'],
       dlevels: [2, 2, 2, 2, 0, 1],
       rlevels: [0, 1, 0, 2, 0, 0],
       values: [10, 20, 50, 75],
       count: 6
-    };
+    });
 
-    buffer.columnData[['stock',  'warehouse']] = {
+    buffer.columnData.push({
+      path_in_schema: ['stock',  'warehouse'],
       dlevels: [1, 1, 1, 0, 1],
       rlevels: [0, 1, 0, 0, 0],
       values: [
@@ -475,14 +480,15 @@ describe('ParquetShredder', function() {
         new Buffer([67])
       ],
       count: 5
-    };
+    });
 
-    buffer.columnData['price'] = {
+    buffer.columnData.push({
+      path_in_schema: ['price'],
       dlevels: [0, 0, 0, 0],
       rlevels: [0, 0, 0, 0],
       values: [23.5, 17, 99, 42],
       count: 4
-    };
+    });
 
     let records = parquet.ParquetShredder.materializeRecords(schema, buffer);
 
@@ -517,31 +523,34 @@ describe('ParquetShredder', function() {
 
     let buffer = {
       rowCount: 1,
-      columnData: {}
+      columnData: []
     };
 
-    buffer.columnData['fruit'] = {
+    buffer.columnData.push({
+      path_in_schema: ['fruit'],
       dlevels: [],
       rlevels: [],
       values: [],
       count: 0
-    };
+    });
     
-    buffer.columnData['fruit,name'] = {
+    buffer.columnData.push({
+      path_in_schema: ['fruit', 'name'],
       dlevels: [0],
       rlevels: [0],
       values: [
         new Buffer([97, 112, 112, 108, 101])
       ],
       count: 1
-    };
+    });
 
-    buffer.columnData['fruit,colour'] = {
+    buffer.columnData.push({
+      path_in_schema: ['fruit', 'colour'],
       dlevels: [0],
       rlevels: [0],
       values: [],
       count: 1
-    };
+    });
     
     let records = parquet.ParquetShredder.materializeRecords(schema, buffer);
 
@@ -550,7 +559,5 @@ describe('ParquetShredder', function() {
     assert.deepEqual(
         records[0],
         { fruit: { name: "apple" } });
-
   });
-
 });
