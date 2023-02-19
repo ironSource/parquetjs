@@ -1,3 +1,7 @@
+# CURRENT STATUS: INACTIVE
+This project requires a major overhaul, as well as handling and sorting through dozens of issues and prs.
+Please contact me if you're up for the task.
+
 # parquet.js
 
 fully asynchronous, pure node.js implementation of the Parquet file format
