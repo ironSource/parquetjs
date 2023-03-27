@@ -24,6 +24,13 @@ function mkTestSchema(opts) {
       fields: {
         quantity: { type: 'INT64', repeated: true },
         warehouse: { type: 'UTF8', compression: opts.compression },
+        flags: {
+          optional: true,
+          fields: {
+            heavy: { type: 'BOOLEAN', optional: true },
+            bulky: { type: 'BOOLEAN', optional: true },
+          },
+        },
       }
     },
     colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
@@ -44,8 +51,8 @@ function mkTestRows(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
-        { quantity: 10, warehouse: "A" },
-        { quantity: 20, warehouse: "B" }
+        { quantity: 10, warehouse: "A", flags: { heavy: true } },
+        { quantity: 20, warehouse: "B", flags: { heavy: true } }
       ],
       colour: [ 'green', 'red' ]
     });
@@ -74,8 +81,8 @@ function mkTestRows(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
-        { quantity: 42, warehouse: "f" },
-        { quantity: 20, warehouse: "x" }
+        { quantity: 42, warehouse: "f", flags: { heavy: true, bulky: true } },
+        { quantity: 20, warehouse: "x", flags: { heavy: true } }
       ],
       colour: [ 'green', 'brown' ],
       meta_json: { expected_ship_date: TEST_VTIME }
@@ -116,7 +123,7 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.fieldList.length, 12);
+  assert.equal(schema.fieldList.length, 15);
   assert(schema.fields.name);
   assert(schema.fields.stock);
   assert(schema.fields.stock.fields.quantity);
@@ -150,7 +157,7 @@ async function readTestFile() {
     assert.equal(c.rLevelMax, 1);
     assert.equal(c.dLevelMax, 1);
     assert.equal(!!c.isNested, true);
-    assert.equal(c.fieldCount, 2);
+    assert.equal(c.fieldCount, 3);
   }
 
   {
@@ -184,6 +191,51 @@ async function readTestFile() {
   }
 
   {
+    const c = schema.fields.stock.fields.flags;
+    assert.equal(c.name, 'flags');
+    assert.equal(c.primitiveType, undefined);
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['stock', 'flags']);
+    assert.equal(c.repetitionType, 'OPTIONAL');
+    assert.equal(c.encoding, undefined);
+    assert.equal(c.compression, undefined);
+    assert.equal(c.rLevelMax, 1);
+    assert.equal(c.dLevelMax, 2);
+    assert.equal(!!c.isNested, true);
+    assert.equal(c.fieldCount, 2);
+  }
+
+  {
+    const c = schema.fields.stock.fields.flags.fields.heavy;
+    assert.equal(c.name, 'heavy');
+    assert.equal(c.primitiveType, 'BOOLEAN');
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['stock', 'flags', 'heavy']);
+    assert.equal(c.repetitionType, 'OPTIONAL');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 1);
+    assert.equal(c.dLevelMax, 3);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
+    const c = schema.fields.stock.fields.flags.fields.bulky;
+    assert.equal(c.name, 'bulky');
+    assert.equal(c.primitiveType, 'BOOLEAN');
+    assert.equal(c.originalType, undefined);
+    assert.deepEqual(c.path, ['stock', 'flags', 'bulky']);
+    assert.equal(c.repetitionType, 'OPTIONAL');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 1);
+    assert.equal(c.dLevelMax, 3);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
     const c = schema.fields.price;
     assert.equal(c.name, 'price');
     assert.equal(c.primitiveType, 'DOUBLE');
@@ -210,8 +262,8 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [10], warehouse: "A" },
-          { quantity: [20], warehouse: "B" }
+          { quantity: [10], warehouse: "A", flags: { heavy: true } },
+          { quantity: [20], warehouse: "B", flags: { heavy: true } }
         ],
         colour: [ 'green', 'red' ]
       });
@@ -238,8 +290,8 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [42], warehouse: "f" },
-          { quantity: [20], warehouse: "x" }
+          { quantity: [42], warehouse: "f", flags: { heavy: true, bulky: true } },
+          { quantity: [20], warehouse: "x", flags: { heavy: true } }
         ],
         colour: [ 'green', 'brown' ],
         meta_json: { expected_ship_date: TEST_VTIME }
