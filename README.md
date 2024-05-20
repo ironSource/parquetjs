@@ -1,3 +1,8 @@
+# ANNOUCEMENT: repository changed ownership
+This repository will changed ownership to the personal account of it's maintainer, [Yaniv Kessler](https://github.com/kessler)
+
+Also on the npm registry to [Yaniv Kessler](https://www.npmjs.com/~kessler)
+
 # CURRENT STATUS: INACTIVE
 This project requires a major overhaul, as well as handling and sorting through dozens of issues and prs.
 Please contact me if you're up for the task.
