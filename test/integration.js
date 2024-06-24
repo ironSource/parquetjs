@@ -11,19 +11,27 @@ const TEST_VTIME =  new Date();
 
 function mkTestSchema(opts) {
   return new parquet.ParquetSchema({
-    name:       { type: 'UTF8', compression: opts.compression },
-    //quantity:   { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
-    quantity:   { type: 'INT64', optional: true, compression: opts.compression },
-    price:      { type: 'DOUBLE', compression: opts.compression },
-    date:       { type: 'TIMESTAMP_MICROS', compression: opts.compression },
-    day:        { type: 'DATE', compression: opts.compression },
-    finger:     { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
-    inter:      { type: 'INTERVAL', compression: opts.compression },
+    name:            { type: 'UTF8', compression: opts.compression },
+    /**
+     * let's verify, that commas in a header do not cause any trouble
+     */
+    'codename, etc': { type: 'UTF8', optional: true, compression: opts.compression },
+    //quantity:      { type: 'INT64', encoding: 'RLE', typeLength: 6, optional: true, compression: opts.compression }, // parquet-mr actually doesnt support this
+    quantity:        { type: 'INT64', optional: true, compression: opts.compression },
+    price:           { type: 'DOUBLE', compression: opts.compression },
+    date:            { type: 'TIMESTAMP_MICROS', compression: opts.compression },
+    day:             { type: 'DATE', compression: opts.compression },
+    finger:          { type: 'FIXED_LEN_BYTE_ARRAY', compression: opts.compression, typeLength: 5 },
+    inter:           { type: 'INTERVAL', compression: opts.compression },
     stock: {
       repeated: true,
       fields: {
-        quantity: { type: 'INT64', repeated: true },
-        warehouse: { type: 'UTF8', compression: opts.compression },
+        quantity:        { type: 'INT64', repeated: true },
+        /**
+         * let's verify, that commas in a header do not cause any trouble
+         */
+        'warehouse,etc': { type: 'UTF8', compression: opts.compression },
+        etc:             { type: 'UTF8', optional: true, compression: opts.compression },
       }
     },
     colour:     { type: 'UTF8', repeated: true, compression: opts.compression },
@@ -37,6 +45,7 @@ function mkTestRows(opts) {
   for (let i = 0; i < TEST_NUM_ROWS; ++i) {
     rows.push({
       name: 'apples',
+      'codename, etc': 'red fruits',
       quantity: 10,
       price: 2.6,
       day: new Date('2017-11-26'),
@@ -44,8 +53,9 @@ function mkTestRows(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
-        { quantity: 10, warehouse: "A" },
-        { quantity: 20, warehouse: "B" }
+        { quantity: 10, 'warehouse,etc': "A" },
+        { quantity: 20, 'warehouse,etc': "B", etc: 'very busy warehouse' },
+        { quantity: 0, 'warehouse,etc': "X", etc: 'this warehouse is no more' }
       ],
       colour: [ 'green', 'red' ]
     });
@@ -60,13 +70,14 @@ function mkTestRows(opts) {
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: {
         quantity: [50, 33],
-        warehouse: "X"
+        'warehouse,etc': "X"
       },
       colour: [ 'orange' ]
     });
 
     rows.push({
       name: 'kiwi',
+      'codename, etc': 'green skin',
       price: 4.2,
       quantity: undefined,
       day: new Date('2017-11-26'),
@@ -74,8 +85,8 @@ function mkTestRows(opts) {
       finger: "FNORD",
       inter: { months: 42, days: 23, milliseconds: 777 },
       stock: [
-        { quantity: 42, warehouse: "f" },
-        { quantity: 20, warehouse: "x" }
+        { quantity: 42, 'warehouse,etc': "f" },
+        { quantity: 20, 'warehouse,etc': "x" }
       ],
       colour: [ 'green', 'brown' ],
       meta_json: { expected_ship_date: TEST_VTIME }
@@ -105,7 +116,9 @@ async function writeTestFile(opts) {
 
   let rows = mkTestRows(opts);
 
-  rows.forEach(async row => await writer.appendRow(row));
+  for (let row of rows) {
+    await writer.appendRow(row);
+  }
 
   await writer.close();
 }
@@ -116,11 +129,12 @@ async function readTestFile() {
   assert.deepEqual(reader.getMetadata(), { "myuid": "420", "fnord": "dronf" })
 
   let schema = reader.getSchema();
-  assert.equal(schema.fieldList.length, 12);
+  assert.equal(schema.fieldList.length, 14);
   assert(schema.fields.name);
+  assert(schema.fields['codename, etc']);
   assert(schema.fields.stock);
   assert(schema.fields.stock.fields.quantity);
-  assert(schema.fields.stock.fields.warehouse);
+  assert(schema.fields.stock.fields['warehouse,etc']);
   assert(schema.fields.price);
 
   {
@@ -139,6 +153,21 @@ async function readTestFile() {
   }
 
   {
+    const c = schema.fields['codename, etc'];
+    assert.equal(c.name, 'codename, etc');
+    assert.equal(c.primitiveType, 'BYTE_ARRAY');
+    assert.equal(c.originalType, 'UTF8');
+    assert.deepEqual(c.path, ['codename, etc']);
+    assert.equal(c.repetitionType, 'OPTIONAL');
+    assert.equal(c.encoding, 'PLAIN');
+    assert.equal(c.compression, 'UNCOMPRESSED');
+    assert.equal(c.rLevelMax, 0);
+    assert.equal(c.dLevelMax, 1);
+    assert.equal(!!c.isNested, false);
+    assert.equal(c.fieldCount, undefined);
+  }
+
+  {
     const c = schema.fields.stock;
     assert.equal(c.name, 'stock');
     assert.equal(c.primitiveType, undefined);
@@ -150,7 +179,7 @@ async function readTestFile() {
     assert.equal(c.rLevelMax, 1);
     assert.equal(c.dLevelMax, 1);
     assert.equal(!!c.isNested, true);
-    assert.equal(c.fieldCount, 2);
+    assert.equal(c.fieldCount, 3);
   }
 
   {
@@ -169,11 +198,11 @@ async function readTestFile() {
   }
 
   {
-    const c = schema.fields.stock.fields.warehouse;
-    assert.equal(c.name, 'warehouse');
+    const c = schema.fields.stock.fields['warehouse,etc'];
+    assert.equal(c.name, 'warehouse,etc');
     assert.equal(c.primitiveType, 'BYTE_ARRAY');
     assert.equal(c.originalType, 'UTF8');
-    assert.deepEqual(c.path, ['stock', 'warehouse']);
+    assert.deepEqual(c.path, ['stock', 'warehouse,etc']);
     assert.equal(c.repetitionType, 'REQUIRED');
     assert.equal(c.encoding, 'PLAIN');
     assert.equal(c.compression, 'UNCOMPRESSED');
@@ -203,6 +232,7 @@ async function readTestFile() {
     for (let i = 0; i < TEST_NUM_ROWS; ++i) {
       assert.deepEqual(await cursor.next(), {
         name: 'apples',
+        'codename, etc': 'red fruits',
         quantity: 10,
         price: 2.6,
         day: new Date('2017-11-26'),
@@ -210,8 +240,9 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [10], warehouse: "A" },
-          { quantity: [20], warehouse: "B" }
+          { quantity: [10], 'warehouse,etc': "A" },
+          { quantity: [20], 'warehouse,etc': "B", etc: 'very busy warehouse' },
+          { quantity: [0], 'warehouse,etc': "X", etc: 'this warehouse is no more' }
         ],
         colour: [ 'green', 'red' ]
       });
@@ -225,21 +256,22 @@ async function readTestFile() {
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [50, 33], warehouse: "X" }
+          { quantity: [50, 33], 'warehouse,etc': "X" }
         ],
         colour: [ 'orange' ]
       });
 
       assert.deepEqual(await cursor.next(), {
         name: 'kiwi',
+        'codename, etc': 'green skin',
         price: 4.2,
         day: new Date('2017-11-26'),
         date: new Date(TEST_VTIME + 8000 * i),
         finger: Buffer.from("FNORD"),
         inter: { months: 42, days: 23, milliseconds: 777 },
         stock: [
-          { quantity: [42], warehouse: "f" },
-          { quantity: [20], warehouse: "x" }
+          { quantity: [42], 'warehouse,etc': "f" },
+          { quantity: [20], 'warehouse,etc': "x" }
         ],
         colour: [ 'green', 'brown' ],
         meta_json: { expected_ship_date: TEST_VTIME }
@@ -273,11 +305,65 @@ async function readTestFile() {
   }
 
   {
-    let cursor = reader.getCursor(['name', 'quantity']);
+    let cursor = reader.getCursor([['stock', 'quantity'], ['stock', 'warehouse,etc']]);
     for (let i = 0; i < TEST_NUM_ROWS; ++i) {
-      assert.deepEqual(await cursor.next(), { name: 'apples', quantity: 10 });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [10], 'warehouse,etc': "A" },
+          { quantity: [20], 'warehouse,etc': "B" },
+          { quantity: [0], 'warehouse,etc': "X"}
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [50, 33], 'warehouse,etc': "X" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { quantity: [42], 'warehouse,etc': "f" },
+          { quantity: [20], 'warehouse,etc': "x" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { });
+    }
+
+    assert.equal(await cursor.next(), null);
+  }
+
+  {
+    let cursor = reader.getCursor([['stock', 'warehouse,etc'], ['stock', 'etc']]);
+    for (let i = 0; i < TEST_NUM_ROWS; ++i) {
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { 'warehouse,etc': "A" },
+          { 'warehouse,etc': "B", etc: 'very busy warehouse' },
+          { 'warehouse,etc': "X", etc: 'this warehouse is no more' }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { 'warehouse,etc': "X" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { 
+        stock: [
+          { 'warehouse,etc': "f" },
+          { 'warehouse,etc': "x" }
+        ], 
+      });
+      assert.deepEqual(await cursor.next(), { });
+    }
+
+    assert.equal(await cursor.next(), null);
+  }
+
+  {
+    let cursor = reader.getCursor(['name', 'codename, etc', 'quantity']);
+    for (let i = 0; i < TEST_NUM_ROWS; ++i) {
+      assert.deepEqual(await cursor.next(), { name: 'apples', 'codename, etc': 'red fruits', quantity: 10 });
       assert.deepEqual(await cursor.next(), { name: 'oranges', quantity: 20 });
-      assert.deepEqual(await cursor.next(), { name: 'kiwi' });
+      assert.deepEqual(await cursor.next(), { name: 'kiwi', 'codename, etc': 'green skin' });
       assert.deepEqual(await cursor.next(), { name: 'banana' });
     }
 
